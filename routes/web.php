@@ -52,3 +52,7 @@ Route::get('/laporan', 'HomeController@laporan')->name('laporan');
 Route::get('/laporan/pdf', 'HomeController@laporan_pdf')->name('laporan_pdf');
 // Route::get('/laporan/excel', 'HomeController@laporan_excel')->name('laporan_excel');
 Route::get('/laporan/print', 'HomeController@laporan_print')->name('laporan_print');
+
+Route::resource('/siswa',App\Http\Controllers\SiswaController::class)->except('show');
+Route::resource('/kelas',App\Http\Controllers\KelasController::class)->except('show');
+Route::resource('/jenis',App\Http\Controllers\JenisController::class)->except('show');

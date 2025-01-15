@@ -37,14 +37,14 @@
                     <b class="logo-abbr"><img src="{{ asset('gambar/sistem/logo1.png')}}" alt=""> </b>
                     <span class="logo-compact"><img src="{{ asset('gambar/sistem/logo1.png') }}" alt=""></span>
                     <span class="brand-title">
-                        <img src="{{ asset('gambar/sistem/logo1.png')}}" alt="" style="height: 30px"> 
+                        <img src="{{ asset('gambar/sistem/logo1.png')}}" alt="" style="height: 30px">
                         <span class="text-white ml-2">LARA<b>DUIT</b></span>
                     </span>
                 </a>
             </div>
         </div>
 
-        <div class="header" style="background: transparent;">    
+        <div class="header" style="background: transparent;">
             <div class="header-content clearfix">
 
                 <div class="nav-control">
@@ -78,7 +78,7 @@
                                     <ul>
                                         <li>
                                           <span>{{ Auth::user()->name }}</span>
-                                          <br> 
+                                          <br>
                                           <span class="text-muted">{{ Auth::user()->email }}</span>
                                       </li>
 
@@ -103,7 +103,7 @@
         </div>
     </div>
 
-    <div class="nk-sidebar">           
+    <div class="nk-sidebar">
 
         <div class="p-3 profil_admin">
             <div class="media align-items-center mb-1 mt-3">
@@ -138,13 +138,13 @@
                     </a>
                 </li>
                 @endif
-                
+
                 <li>
                     <a href="{{ route('transaksi') }}" aria-expanded="false">
                         <i class="icon-menu menu-icon mr-3"></i><span class="nav-text">Data Transaksi</span>
                     </a>
                 </li>
-              
+
                 <li>
                     <a href="{{ route('laporan') }}" aria-expanded="false">
                         <i class="icon-notebook menu-icon mr-3"></i><span class="nav-text">Laporan</span>
@@ -162,6 +162,37 @@
                         <li><a href="{{ route('user.tambah') }}">Tambah Pengguna Baru</a></li>
                     </ul>
                 </li>
+
+                <li class="mega-menu mega-menu-sm">
+                    <a class="has-arrow" href="javascript:void()" aria-expanded="false">
+                        <i class="icon-user menu-icon mr-3"></i><span class="nav-text">Siswa</span>
+                    </a>
+                    <ul aria-expanded="false">
+                        <li><a href="{{ route('siswa.index') }}">Data Siswa</a></li>
+                        <li><a href="{{ route('siswa.create') }}">Tambah Siswa Baru</a></li>
+                    </ul>
+                </li>
+
+                <li class="mega-menu mega-menu-sm">
+                    <a class="has-arrow" href="javascript:void()" aria-expanded="false">
+                        <i class="icon-user menu-icon mr-3"></i><span class="nav-text">Kelas</span>
+                    </a>
+                    <ul aria-expanded="false">
+                        <li><a href="{{ route('kelas.index') }}">Data Kelas</a></li>
+                        <li><a href="{{ route('kelas.create') }}">Tambah Kelas Baru</a></li>
+                    </ul>
+                </li>
+
+                <li class="mega-menu mega-menu-sm">
+                    <a class="has-arrow" href="javascript:void()" aria-expanded="false">
+                        <i class="icon-user menu-icon mr-3"></i><span class="nav-text">Jenis</span>
+                    </a>
+                    <ul aria-expanded="false">
+                        <li><a href="{{ route('jenis.index') }}">Data Jenis</a></li>
+                        <li><a href="{{ route('jenis.create') }}">Tambah Jenis Baru</a></li>
+                    </ul>
+                </li>
+
                 @endif
 
                 <li>
