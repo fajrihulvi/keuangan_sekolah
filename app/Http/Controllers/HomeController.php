@@ -17,6 +17,9 @@ use PDF;
 use App\Exports\LaporanExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\Controller;
+use App\Models\Jenis;
+use App\Models\Kelas;
+use App\Models\Siswa;
 use Maatwebsite\Excel\Concerns\FromView;
 
 class HomeController extends Controller
@@ -92,11 +95,11 @@ class HomeController extends Controller
 
         return view('app.index',
             [
-                'pemasukan_hari_ini' => $pemasukan_hari_ini, 
+                'pemasukan_hari_ini' => $pemasukan_hari_ini,
                 'pemasukan_bulan_ini' => $pemasukan_bulan_ini,
                 'pemasukan_tahun_ini' => $pemasukan_tahun_ini,
                 'seluruh_pemasukan' => $seluruh_pemasukan,
-                'pengeluaran_hari_ini' => $pengeluaran_hari_ini, 
+                'pengeluaran_hari_ini' => $pengeluaran_hari_ini,
                 'pengeluaran_bulan_ini' => $pengeluaran_bulan_ini,
                 'pengeluaran_tahun_ini' => $pengeluaran_tahun_ini,
                 'seluruh_pengeluaran' => $seluruh_pengeluaran,
@@ -109,13 +112,19 @@ class HomeController extends Controller
     public function kategori()
     {
         $kategori = Kategori::orderBy('kategori','asc')->get();
-        return view('app.kategori',['kategori' => $kategori]);
+        $siswa = Siswa::all();
+        $kelas = Kelas::all();
+        $jenis = Jenis::all();
+        return view('app.kategori',compact('kategori','siswa','kelas','jenis'));
     }
 
     public function kategori_aksi(Request $req)
     {
-        $nama = $req->input('nama');
-        Kategori::create(['kategori' => $nama]);
+        $this->validate($req,[
+            'kategori' => 'required',
+            'id_tipe' => 'required|exists:jenis,id'
+        ]);
+        Kategori::create($req->all());
         return redirect('kategori')->with('success','Kategori telah disimpan');
     }
 
@@ -176,10 +185,30 @@ class HomeController extends Controller
     }
 
 
-    public function transaksi()
+    public function transaksi(Request $request)
     {
+        // $transaksi = Transaksi::orderBy('id','desc')->get();
+        $transaksi = Transaksi::query();
+        if($request->filled('jenis'))
+        {
+            $transaksi->where('jenis',$request->jenis);
+        }
+        if($request->filled('kategori'))
+        {
+            $transaksi->where('kategori_id',$request->kategori);
+        }
+        if($request->filled('bulan'))
+        {
+            $transaksi->whereMonth('created_at',$request->bulan);
+        }
+        if($request->filled('tahun'))
+        {
+            $transaksi->whereYear('created_at',$request->tahun);
+        }
+        // dd($transaksi->orderBy('id','desc')->get());
+        // $transaksi->with(['siswa', 'kategori', 'siswa.kelas'])->get();
+        $transaksi=$transaksi->orderBy('id','desc')->get();
         $kategori = Kategori::orderBy('kategori','asc')->get();
-        $transaksi = Transaksi::orderBy('id','desc')->get();
         return view('app.transaksi',['transaksi' => $transaksi, 'kategori' => $kategori]);
     }
 
@@ -253,7 +282,7 @@ class HomeController extends Controller
     }
 
     public function laporan_print()
-    {       
+    {
         if(isset($_GET['kategori'])){
             $kategori = Kategori::orderBy('kategori','asc')->get();
             if($_GET['kategori'] == ""){
@@ -295,7 +324,7 @@ class HomeController extends Controller
             $pdf = PDF::loadView('app.laporan_pdf', ['transaksi' => $transaksi, 'kategori' => $kategori]);
             return $pdf->download('Laporan Keuangan.pdf');
         }
-        
+
     }
 
 
@@ -322,7 +351,7 @@ class HomeController extends Controller
 
         // menyimpan data file yang diupload ke variabel $file
         $file = $request->file('foto');
-        
+
         // cek jika gambar kosong
         if($file != ""){
             // menambahkan waktu sebagai pembuat unik nnama file gambar
@@ -334,8 +363,8 @@ class HomeController extends Controller
         }else{
             $nama_file = "";
         }
- 
- 
+
+
         User::create([
             'name' => $request->nama,
             'email' => $request->email,
@@ -366,7 +395,7 @@ class HomeController extends Controller
         $email = $req->input('email');
         $password = $req->input('password');
         $level = $req->input('level');
-        
+
 
         $user = User::find($id);
         $user->name = $name;
@@ -377,7 +406,7 @@ class HomeController extends Controller
 
         // menyimpan data file yang diupload ke variabel $file
         $file = $req->file('foto');
-        
+
         // cek jika gambar tidak kosong
         if($file != ""){
             // menambahkan waktu sebagai pembuat unik nnama file gambar

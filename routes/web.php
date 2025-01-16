@@ -26,7 +26,6 @@ Auth::routes([
 
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-
 Route::get('/kategori', 'HomeController@kategori')->name('kategori');
 Route::post('/kategori/aksi', 'HomeController@kategori_aksi')->name('kategori.aksi');
 Route::put('/kategori/update/{id}', 'HomeController@kategori_update')->name('kategori.update');
