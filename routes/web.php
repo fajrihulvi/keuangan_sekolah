@@ -55,3 +55,6 @@ Route::get('/laporan/print', 'HomeController@laporan_print')->name('laporan_prin
 Route::resource('/siswa',App\Http\Controllers\SiswaController::class)->except('show');
 Route::resource('/kelas',App\Http\Controllers\KelasController::class)->except('show');
 Route::resource('/jenis',App\Http\Controllers\JenisController::class)->except('show');
+
+Route::get('/getSiswaInKelas', [App\Http\Controllers\HomeController::class,"getSiswaInKelas"])->name("siswa-kelas");
+Route::get('/getKelas', [App\Http\Controllers\HomeController::class,"getKelas"])->name("kelas");

@@ -9,7 +9,7 @@ class Transaksi extends Model
 {
 	protected $table = "transaksi";
 
-	protected $fillable = ["tanggal","jenis","kategori_id","nominal","keterangan"];
+	protected $fillable = ["tanggal","jenis","kategori_id","id_siswa","nominal","keterangan"];
 
 	public function kategori()
 	{

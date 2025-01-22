@@ -47,50 +47,53 @@ class HomeController extends Controller
         $bulan = date('m');
         $tahun = date('Y');
 
+        $jenis = Jenis::all();
+
         $pemasukan_hari_ini = DB::table('transaksi')
         ->select(DB::raw('SUM(nominal) as total'))
-        ->where('jenis','Pemasukan')
+        ->where('jenis','1')
         ->whereDate('tanggal',$tanggal)
         ->first();
 
         $pemasukan_bulan_ini = DB::table('transaksi')
         ->select(DB::raw('SUM(nominal) as total'))
-        ->where('jenis','Pemasukan')
+        ->where('jenis','1')
         ->whereMonth('tanggal',$bulan)
         ->first();
+        // dd($pemasukan_bulan_ini);
 
         $pemasukan_tahun_ini = DB::table('transaksi')
         ->select(DB::raw('SUM(nominal) as total'))
-        ->where('jenis','Pemasukan')
+        ->where('jenis','1')
         ->whereYear('tanggal',$tahun)
         ->first();
 
         $seluruh_pemasukan = DB::table('transaksi')
         ->select(DB::raw('SUM(nominal) as total'))
-        ->where('jenis','Pemasukan')
+        ->where('jenis','1')
         ->first();
 
         $pengeluaran_hari_ini = DB::table('transaksi')
         ->select(DB::raw('SUM(nominal) as total'))
-        ->where('jenis','Pengeluaran')
+        ->where('jenis','3')
         ->whereDate('tanggal',$tanggal)
         ->first();
 
         $pengeluaran_bulan_ini = DB::table('transaksi')
         ->select(DB::raw('SUM(nominal) as total'))
-        ->where('jenis','Pengeluaran')
+        ->where('jenis','3')
         ->whereMonth('tanggal',$bulan)
         ->first();
 
         $pengeluaran_tahun_ini = DB::table('transaksi')
         ->select(DB::raw('SUM(nominal) as total'))
-        ->where('jenis','Pengeluaran')
+        ->where('jenis','3')
         ->whereYear('tanggal',$tahun)
         ->first();
 
         $seluruh_pengeluaran = DB::table('transaksi')
         ->select(DB::raw('SUM(nominal) as total'))
-        ->where('jenis','Pengeluaran')
+        ->where('jenis','3')
         ->first();
 
         return view('app.index',
@@ -105,6 +108,7 @@ class HomeController extends Controller
                 'seluruh_pengeluaran' => $seluruh_pengeluaran,
                 'kategori' => $kategori,
                 'transaksi' => $transaksi,
+                'jenis' => Jenis::all(),
             ]
         );
     }
@@ -159,7 +163,6 @@ class HomeController extends Controller
 
     public function password_update(Request $request)
     {
-
         if (!(Hash::check($request->get('current-password'), Auth::user()->password))) {
         // The passwords matches
             return redirect()->back()->with("error","Your current password does not matches with the password you provided. Please try again.");
@@ -179,11 +182,8 @@ class HomeController extends Controller
         $user = Auth::user();
         $user->password = bcrypt($request->get('new-password'));
         $user->save();
-
         return redirect()->back()->with("success","Password telah diganti!");
-
     }
-
 
     public function transaksi(Request $request)
     {
@@ -209,28 +209,25 @@ class HomeController extends Controller
         // $transaksi->with(['siswa', 'kategori', 'siswa.kelas'])->get();
         $transaksi=$transaksi->orderBy('id','desc')->get();
         $kategori = Kategori::orderBy('kategori','asc')->get();
-        return view('app.transaksi',['transaksi' => $transaksi, 'kategori' => $kategori]);
+        $jenis = Jenis::all();
+        return view('app.transaksi',compact('transaksi','kategori','jenis'));
     }
 
     public function transaksi_aksi(Request $req)
     {
-        $tanggal = $req->input('tanggal');
-        $jenis = $req->input('jenis');
-        $kategori = $req->input('kategori');
-        $nominal = $req->input('nominal');
-        $keterangan = $req->input('keterangan');
-
-        Transaksi::create([
-            'tanggal' => $tanggal,
-            'jenis' => $jenis,
-            'kategori_id' => $kategori,
-            'nominal' => $nominal,
-            'keterangan' => $keterangan,
+        $req->validate([
+            'tanggal'=>"date|required",
+            'jenis'=>"required",
+            'kategori_id'=>"required|exists:kategori,id",
+            'id_siswa'=>"nullable|exists:siswa,id",
+            'nominal'=>'required',
+            'keterangan'=>'nullable',
         ]);
+
+        $ok = Transaksi::create($req->all());
 
         return redirect()->back()->with("success","Transaksi telah disimpan!");
     }
-
 
     public function transaksi_update($id, Request $req)
     {
@@ -262,6 +259,7 @@ class HomeController extends Controller
     {
         if(isset($_GET['kategori'])){
             $kategori = Kategori::orderBy('kategori','asc')->get();
+            $transaksi = "";
             if($_GET['kategori'] == ""){
                 $transaksi = Transaksi::whereDate('tanggal','>=',$_GET['dari'])
                 ->whereDate('tanggal','<=',$_GET['sampai'])
@@ -273,11 +271,11 @@ class HomeController extends Controller
                 ->get();
             }
             // $transaksi = Transaksi::orderBy('id','desc')->get();
-            return view('app.laporan',['transaksi' => $transaksi, 'kategori' => $kategori]);
+            return view('app.laporan',['transaksi' => $transaksi, 'kategori' => $kategori,'jenis'=>Jenis::get()]);
         }else{
             $kategori = Kategori::orderBy('kategori','asc')->get();
-            // $transaksi = Transaksi::orderBy('id','desc')->get();
-            return view('app.laporan',['transaksi' => array(), 'kategori' => $kategori]);
+            $jenis =Jenis::get();
+            return view('app.laporan',['transaksi' => array(), 'kategori' => $kategori,'jenis'=>$jenis]);
         }
     }
 
@@ -296,7 +294,7 @@ class HomeController extends Controller
                 ->get();
             }
             // $transaksi = Transaksi::orderBy('id','desc')->get();
-            return view('app.laporan_print',['transaksi' => $transaksi, 'kategori' => $kategori]);
+            return view('app.laporan_print',['transaksi' => $transaksi, 'kategori' => $kategori,'jenis'=>Jenis::all()]);
         }
     }
 
@@ -321,12 +319,11 @@ class HomeController extends Controller
             }
             // $transaksi = Transaksi::orderBy('id','desc')->get();
             // return view('app.laporan_print',['transaksi' => $transaksi, 'kategori' => $kategori]);
-            $pdf = PDF::loadView('app.laporan_pdf', ['transaksi' => $transaksi, 'kategori' => $kategori]);
+            $pdf = PDF::loadView('app.laporan_pdf', ['transaksi' => $transaksi, 'kategori' => $kategori,'jenis'=>Jenis::all()]);
             return $pdf->download('Laporan Keuangan.pdf');
         }
 
     }
-
 
     public function user()
     {
@@ -382,7 +379,7 @@ class HomeController extends Controller
         return view('app.user_edit', ['user' => $user]);
     }
 
-     public function user_update($id, Request $req)
+    public function user_update($id, Request $req)
     {
          $this->validate($req, [
             'nama' => 'required',
@@ -435,5 +432,23 @@ class HomeController extends Controller
         $user->delete();
 
         return redirect(route('user'))->with("success","User telah dihapus!");
+    }
+
+    public function getSiswaInKelas(Request $request, Siswa $siswa)
+    {
+        if($request->filled("kelas")){
+            $data=$siswa->where("id_kelas","LIKE",$request->kelas)->get();
+            if(!$data){
+                return json_encode("Tidak ada siswa");
+            }
+            return json_encode($data);
+        }else{
+            return json_encode("Pilih kelas");
+        }
+    }
+    public function getKelas()
+    {
+        $data = Kelas::get();
+        return json_encode($data);
     }
 }

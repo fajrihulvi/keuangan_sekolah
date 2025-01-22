@@ -1,3 +1,18 @@
+<?php
+    $pemasukan = null;
+    $pengeluaran = null;
+    $bantuan = null;
+    foreach ($jenis as $item) {
+        if(Str::lower($item->tipe) == "pemasukan"){
+            $pemasukan = $item->id;
+        }else if(Str::lower($item->tipe) == "pengeluaran"){
+            $pengeluaran = $item->id;
+        }else{
+            $bantuan = $item->id;
+        }
+    }
+?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -71,8 +86,8 @@
       $total_pengeluaran = 0;
       @endphp
       @foreach($transaksi as $t)
-      <?php 
-      if($t->jenis == "Pemasukan"){
+      <?php
+      if($t->jenis == $pemasukan){
         $saldo += $t->nominal;
       }else{
         $saldo -= $t->nominal;
@@ -84,7 +99,7 @@
         <td>{{ $t->kategori->kategori }}</td>
         <td>{{ $t->keterangan }}</td>
         <td class="text-center">
-          @if($t->jenis == "Pemasukan")
+          @if($t->jenis == $pemasukan)
           {{ "Rp.".number_format($t->nominal).",-" }}
           @php $total_pemasukan += $t->nominal; @endphp
           @else
@@ -92,7 +107,7 @@
           @endif
         </td>
         <td class="text-center">
-          @if($t->jenis == "Pengeluaran")
+          @if($t->jenis == $pengeluaran)
           {{ "Rp.".number_format($t->nominal).",-" }}
           @php $total_pengeluaran += $t->nominal; @endphp
           @else

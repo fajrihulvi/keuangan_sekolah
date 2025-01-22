@@ -16,9 +16,7 @@
     <link rel="stylesheet" href="{{ asset('asset_admin/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('asset_admin/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css') }}">
     <link rel="stylesheet" href="{{ asset('asset_admin/bower_components/bootstrap-daterangepicker/daterangepicker.css') }}">
-
 </head>
-
 <body>
 
     <div id="preloader">
@@ -77,16 +75,16 @@
                                 <div class="dropdown-content-body">
                                     <ul>
                                         <li>
-                                          <span>{{ Auth::user()->name }}</span>
+                                            <span>{{ Auth::user()->name }}</span>
                                           <br>
                                           <span class="text-muted">{{ Auth::user()->email }}</span>
-                                      </li>
+                                        </li>
 
-                                      <hr class="my-2">
+                                        <hr class="my-2">
 
-                                      <li>
-                                          <a href="{{ route('password') }}"><i class="icon-lock"></i> <span>Ganti Password</span></a>
-                                      </li>
+                                        <li>
+                                            <a href="{{ route('password') }}"><i class="icon-lock"></i> <span>Ganti Password</span></a>
+                                        </li>
                                       <li>
                                           <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                                             @csrf
@@ -107,12 +105,12 @@
 
         <div class="p-3 profil_admin">
             <div class="media align-items-center mb-1 mt-3">
-               @if(Auth::user()->foto == "")
-               <img class="mr-2" src="{{ asset('gambar/sistem/user.png')}}" height="60" width="60" alt="">
-               @else
+                @if(Auth::user()->foto == "")
+                <img class="mr-2" src="{{ asset('gambar/sistem/user.png')}}" height="60" width="60" alt="">
+                @else
                <img class="mr-2" src="{{ asset('gambar/user/'.Auth::user()->foto) }}" height="60" width="60">
                @endif
-                <div class="media-body">
+               <div class="media-body">
                     <h5 class="mb-0">{{ Auth::user()->name }}</h5>
                     <p class="text-muted mb-0"><?php if(Auth::user()->level == "admin"){ echo "Administrator";}else if(Auth::user()->level == "bendahara"){ echo "Bendahara"; }else{ echo "Pengawas"; } ?></p>
                 </div>
@@ -132,10 +130,15 @@
                 </li>
 
                 @if(Auth::user()->level == "admin")
-                <li>
-                    <a href="{{ route('kategori') }}" aria-expanded="false">
-                        <i class="icon-grid menu-icon mr-3"></i><span class="nav-text">Data Kategori</span>
+                <li class="mega-menu mega-menu-sm">
+                    <a class="has-arrow" href="javascript:void()" aria-expanded="false">
+                        <i class="icon-grid menu-icon mr-3"></i><span class="nav-text">Master Data</span>
                     </a>
+                    <ul aria-expanded="false">
+                        <li><a href="{{ route('kategori') }}">Kategori</a></li>
+                        <li><a href="{{ route('kelas.index') }}">Kelas</a></li>
+                        <li><a href="{{ route('jenis.index') }}">Jenis</a></li>
+                    </ul>
                 </li>
                 @endif
 
@@ -172,27 +175,6 @@
                         <li><a href="{{ route('siswa.create') }}">Tambah Siswa Baru</a></li>
                     </ul>
                 </li>
-
-                <li class="mega-menu mega-menu-sm">
-                    <a class="has-arrow" href="javascript:void()" aria-expanded="false">
-                        <i class="icon-user menu-icon mr-3"></i><span class="nav-text">Kelas</span>
-                    </a>
-                    <ul aria-expanded="false">
-                        <li><a href="{{ route('kelas.index') }}">Data Kelas</a></li>
-                        <li><a href="{{ route('kelas.create') }}">Tambah Kelas Baru</a></li>
-                    </ul>
-                </li>
-
-                <li class="mega-menu mega-menu-sm">
-                    <a class="has-arrow" href="javascript:void()" aria-expanded="false">
-                        <i class="icon-user menu-icon mr-3"></i><span class="nav-text">Jenis</span>
-                    </a>
-                    <ul aria-expanded="false">
-                        <li><a href="{{ route('jenis.index') }}">Data Jenis</a></li>
-                        <li><a href="{{ route('jenis.create') }}">Tambah Jenis Baru</a></li>
-                    </ul>
-                </li>
-
                 @endif
 
                 <li>
@@ -218,24 +200,8 @@
 
 
     @yield('konten')
-
-
-
-
-    <div class="footer">
-        <div class="copyright">
-            <p>Copyright &copy; Aplikasi Keuangan Menggunakan Laravel. by <a href="https://www.malasngoding.com" target="_blank">malasngoding.com</a> {{ date('Y') }}</p>
-        </div>
-    </div>
 </div>
-
-
-
-<div></div>
-
-
 <script src="{{ asset('asset_admin/bower_components/jquery/dist/jquery.min.js') }}"></script>
-
 <script src="{{ asset('asset_admin/plugins/common/common.min.js') }}"></script>
 <script src="{{ asset('asset_admin/js/custom.min.js') }}"></script>
 <script src="{{ asset('asset_admin/js/settings.js') }}"></script>
@@ -272,8 +238,9 @@
 </script>
 @endif
 
-<script>
+@yield('script')
 
+<script>
     $(document).ready(function(){
         $('#table-datatable').DataTable({
             'paging'      : true,

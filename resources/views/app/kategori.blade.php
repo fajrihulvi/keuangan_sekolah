@@ -23,7 +23,6 @@
                         <i class="fa fa-plus"></i> &nbsp TAMBAH KATEGORI
                     </button>
                     <h4>Data Kategori</h4>
-
                 </div>
                 <div class="card-body pt-0">
                     <!-- Modal -->
@@ -44,6 +43,7 @@
                                             <label>Nama Kategori</label>
                                             <input type="text" name="kategori" required="required" class="form-control"
                                                 placeholder="Nama Kategori ..">
+                                            <label>Jenis</label>
                                                 <select class="form-control @error('id_tipe') is-invalid @enderror"
                                                 name="id_tipe">
                                                 @foreach ($jenis as $row)
@@ -71,7 +71,8 @@
                             <thead>
                                 <tr>
                                     <th width="1%">NO</th>
-                                    <th>NAMA KATEGORI</th>
+                                    <th class="text-center">NAMA KATEGORI</th>
+                                    <th class="text-center" width="20%">Untuk Siswa</th>
                                     <th class="text-center" width="10%">OPSI</th>
                                 </tr>
                             </thead>
@@ -82,22 +83,8 @@
                                 @foreach ($kategori as $id => $k)
                                     <tr>
                                         <td class="text-center">{{ $no++ }}</td>
-                                        <td class="d-flex">
-                                            @if ($k->untuk_siswa == 'Y')
-                                                <button type="button" class="btn btn-link text-left text-decoration-none w-100 p-0 text-dark"
-                                                    data-toggle="collapse" data-target="#collapse{{ $id }}" aria-expanded="false"
-                                                    aria-controls="collapse{{ $id }}">
-                                                    {{ $k->kategori }}
-                                                </button>
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                    stroke-width="1.5" stroke="currentColor" height="16" width="16" class="text-dark">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                                                </svg>
-                                            @else
-                                                <p class="text-dark">{{ $k->kategori }}</p>
-                                            @endif
-                                        </td>
+                                        <td class="text-center">{{ $k->kategori }}</td>
+                                        <td class="text-center">{{ $k->untuk_siswa === "Y"? "Ya":"Tidak" }}</td>
                                         <td class="text-center">
                                             <button type="button" class="btn btn-default btn-sm" data-toggle="modal"
                                                 data-target="#edit_kategori_{{ $k->id }}">
@@ -107,51 +94,6 @@
                                                 data-target="#hapus_kategori_{{ $k->id }}">
                                                 <i class="fa fa-trash"></i>
                                             </button>
-                                        </td>
-                                    </tr>
-                                    <tr class="collapse" id="collapse{{ $id }}">
-                                        <td colspan="3">
-                                            <div class="card card-body">
-                                                {{-- <h5>Kelas</h5> --}}
-                                                @if ($k->untuk_siswa == 'Y')
-                                                    @foreach ($kelas as $row)
-                                                        <div class="accordion" id="accordion{{ $row->id }}">
-                                                            <div class="card">
-                                                                <div class="card-header" id="heading{{ $row->id }}">
-                                                                    <h5 class="mb-0">
-                                                                        <button class="btn btn-link w-100 text-left p-0 text-dark" type="button"
-                                                                            data-toggle="collapse" data-target="#collapseKelas{{ $row->id }}"
-                                                                            aria-expanded="false" aria-controls="collapseKelas{{ $row->id }}">
-                                                                            <strong>Kelas {{ $row->nama_kelas }}</strong>
-                                                                        </button>
-                                                                    </h5>
-                                                                </div>
-                                                                <div id="collapseKelas{{ $row->id }}" class="collapse"
-                                                                    aria-labelledby="heading{{ $row->id }}" data-parent="#accordion{{ $row->id }}">
-                                                                    <div class="card-body">
-                                                                        @php
-                                                                            $studentsInClass = $siswa->where('id_kelas', $row->id);
-                                                                        @endphp
-
-                                                                        @if ($studentsInClass->isNotEmpty())
-                                                                        @php
-                                                                            $nomor=1;
-                                                                        @endphp
-                                                                            @foreach ($studentsInClass as $student)
-                                                                                <p>{{ $nomor++.'. '. $student->nama_lengkap }}</p>
-                                                                            @endforeach
-                                                                        @else
-                                                                            <p class="text-muted">Belum ada data di kelas ini. <span><a href="{{ route('siswa.create') }}">Tambahkan data siswa</a></span>
-                                                                            </p>
-                                                                        @endif
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    @endforeach
-                                                @else
-                                                @endif
-                                            </div>
                                         </td>
                                     </tr>
                                     <form action="{{ route('kategori.update', ['id' => $k->id]) }}"

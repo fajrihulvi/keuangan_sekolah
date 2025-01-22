@@ -1,0 +1,12 @@
+21 januari
+- kategori.blade.php
+- transaksi.blade.php
+- jenis
+- dashboard
+-
+
+
+
+value yang diubh
+pemasukan = 1
+pengeluaran = 3
