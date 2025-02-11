@@ -58,3 +58,4 @@ Route::resource('/jenis',App\Http\Controllers\JenisController::class)->except('s
 
 Route::get('/getSiswaInKelas', [App\Http\Controllers\HomeController::class,"getSiswaInKelas"])->name("siswa-kelas");
 Route::get('/getKelas', [App\Http\Controllers\HomeController::class,"getKelas"])->name("kelas");
+Route::view('test','test');

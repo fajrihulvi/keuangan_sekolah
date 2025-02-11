@@ -16,6 +16,8 @@
     <link rel="stylesheet" href="{{ asset('asset_admin/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('asset_admin/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css') }}">
     <link rel="stylesheet" href="{{ asset('asset_admin/bower_components/bootstrap-daterangepicker/daterangepicker.css') }}">
+    <link rel="stylesheet" href="{{ asset('asset_admin/plugins/select2/css/select2.min.css') }}">
+    @yield('css')
 </head>
 <body>
 
@@ -230,6 +232,7 @@
 
 <script src="{{ asset('asset_admin/plugins/toastr/js/toastr.min.js') }}"></script>
 <script src="{{ asset('asset_admin/plugins/toastr/js/toastr.init.js') }}"></script>
+<script src="{{ asset('asset_admin/plugins/select2/js/select2.full.min.js') }}"></script>
 
 
 @if(session('success'))

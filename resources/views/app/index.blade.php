@@ -1,25 +1,23 @@
 <?php
-    $pemasukan = null;
-    $pengeluaran = null;
-    $bantuan = null;
-    foreach ($jenis as $item) {
-        if(Str::lower($item->tipe) == "pemasukan"){
-            $pemasukan = $item->id;
-        }else if(Str::lower($item->tipe) == "pengeluaran"){
-            $pengeluaran = $item->id;
-        }else{
-            $bantuan = $item->id;
-        }
+$pemasukan = null;
+$pengeluaran = null;
+$bantuan = null;
+foreach ($jenis as $item) {
+    if (Str::lower($item->tipe) == 'pemasukan') {
+        $pemasukan = $item->id;
+    } elseif (Str::lower($item->tipe) == 'pengeluaran') {
+        $pengeluaran = $item->id;
+    } else {
+        $bantuan = $item->id;
     }
+}
 ?>
 
 @extends('app.master')
 
 @section('konten')
     <div class="content-body">
-
         <div class="container-fluid mt-3">
-
             <div class="row">
                 <div class="col-lg-4 col-sm-12">
                     <div class="card gradient-7">
@@ -54,8 +52,6 @@
                         </div>
                     </div>
                 </div>
-
-
                 <?php
       if(isset($_GET['session'])){
         if($_GET['session'] == "hari"){
@@ -92,7 +88,8 @@
                         <div class="card-body">
                             <h3 class="card-title text-white">Pemasukan Bulan Ini</h3>
                             <div class="d-inline-block">
-                                <h3 class="text-white">{{ 'Rp. ' . number_format($pemasukan_bulan_ini->total) . ' ,-' }}</h3>
+                                <h3 class="text-white">{{ 'Rp. ' . number_format($pemasukan_bulan_ini->total) . ' ,-' }}
+                                </h3>
                                 <p class="text-white mb-0">{{ date('M') }}</p>
                             </div>
                         </div>
@@ -119,7 +116,8 @@
                         <div class="card-body">
                             <h3 class="card-title text-white">Pemasukan Tahun Ini</h3>
                             <div class="d-inline-block">
-                                <h3 class="text-white">{{ 'Rp. ' . number_format($pemasukan_tahun_ini->total) . ' ,-' }}</h3>
+                                <h3 class="text-white">{{ 'Rp. ' . number_format($pemasukan_tahun_ini->total) . ' ,-' }}
+                                </h3>
                                 <p class="text-white mb-0">{{ date('Y') }}</p>
                             </div>
                         </div>
@@ -176,7 +174,8 @@
                         <div class="card-body">
                             <h3 class="card-title text-white">Pemasukan Hari Ini</h3>
                             <div class="d-inline-block">
-                                <h3 class="text-white">{{ 'Rp. ' . number_format($pemasukan_hari_ini->total) . ' ,-' }}</h3>
+                                <h3 class="text-white">{{ 'Rp. ' . number_format($pemasukan_hari_ini->total) . ' ,-' }}
+                                </h3>
                                 <p class="text-white mb-0">{{ date('d-m-Y') }}</p>
                             </div>
                         </div>
@@ -198,17 +197,10 @@
                 <?php
       }
       ?>
-
-
-
-
-
-
             </div>
 
             <div class="row">
                 <div class="col-lg-4 col-sm-12">
-
                 </div>
                 <?php
       if(isset($_GET['session'])){
@@ -219,7 +211,20 @@
                         <div class="card-body">
                             <h3 class="card-title text-white">Pengeluaran Hari Ini</h3>
                             <div class="d-inline-block">
-                                <h3 class="text-white">{{ 'Rp. ' . number_format($pengeluaran_hari_ini->total) . ' ,-' }}</h3>
+                                <h3 class="text-white">{{ 'Rp. ' . number_format($pengeluaran_hari_ini->total) . ' ,-' }}
+                                </h3>
+                                <p class="text-white mb-0">{{ date('d-m-Y') }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-sm-12">
+                    <div class="card gradient-2">
+                        <div class="card-body">
+                            <h3 class="card-title text-white">Bantuan Hari Ini</h3>
+                            <div class="d-inline-block">
+                                <h3 class="text-white">{{ 'Rp. ' . number_format($bantuan_hari_ini->total) . ' ,-' }}
+                                </h3>
                                 <p class="text-white mb-0">{{ date('d-m-Y') }}</p>
                             </div>
                         </div>
@@ -234,6 +239,18 @@
                             <h3 class="card-title text-white">Pengeluaran Bulan Ini</h3>
                             <div class="d-inline-block">
                                 <h3 class="text-white">{{ 'Rp. ' . number_format($pengeluaran_bulan_ini->total) . ' ,-' }}
+                                </h3>
+                                <p class="text-white mb-0">{{ date('M') }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-sm-12">
+                    <div class="card gradient-10">
+                        <div class="card-body">
+                            <h3 class="card-title text-white">Bantuan Bulan Ini</h3>
+                            <div class="d-inline-block">
+                                <h3 class="text-white">{{ 'Rp. ' . number_format($bantuan_bulan_ini->total) . ' ,-' }}
                                 </h3>
                                 <p class="text-white mb-0">{{ date('M') }}</p>
                             </div>
@@ -255,6 +272,18 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-lg-4 col-sm-12">
+                    <div class="card gradient-7">
+                        <div class="card-body">
+                            <h3 class="card-title text-white">Bantuan Tahun Ini</h3>
+                            <div class="d-inline-block">
+                                <h3 class="text-white">{{ 'Rp. ' . number_format($bantuan_tahun_ini->total) . ' ,-' }}
+                                </h3>
+                                <p class="text-white mb-0">{{ date('Y') }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <?php
         }else if($_GET['session'] == "semua"){
           ?>
@@ -263,7 +292,20 @@
                         <div class="card-body">
                             <h3 class="card-title text-white">Seluruh Pengeluaran</h3>
                             <div class="d-inline-block">
-                                <h3 class="text-white">{{ 'Rp. ' . number_format($seluruh_pengeluaran->total) . ' ,-' }}</h3>
+                                <h3 class="text-white">{{ 'Rp. ' . number_format($seluruh_pengeluaran->total) . ' ,-' }}
+                                </h3>
+                                <p class="text-white mb-0">Semua</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-sm-12">
+                    <div class="card gradient-9">
+                        <div class="card-body">
+                            <h3 class="card-title text-white">Seluruh Bantuan</h3>
+                            <div class="d-inline-block">
+                                <h3 class="text-white">{{ 'Rp. ' . number_format($seluruh_bantuan->total) . ' ,-' }}
+                                </h3>
                                 <p class="text-white mb-0">Semua</p>
                             </div>
                         </div>
@@ -278,7 +320,20 @@
                         <div class="card-body">
                             <h3 class="card-title text-white">Pengeluaran Hari Ini</h3>
                             <div class="d-inline-block">
-                                <h3 class="text-white">{{ 'Rp. ' . number_format($pengeluaran_hari_ini->total) . ' ,-' }}</h3>
+                                <h3 class="text-white">{{ 'Rp. ' . number_format($pengeluaran_hari_ini->total) . ' ,-' }}
+                                </h3>
+                                <p class="text-white mb-0">{{ date('d-m-Y') }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-sm-12">
+                    <div class="card gradient-2">
+                        <div class="card-body">
+                            <h3 class="card-title text-white">Bantuan Hari Ini</h3>
+                            <div class="d-inline-block">
+                                <h3 class="text-white">{{ 'Rp. ' . number_format($bantuan_hari_ini->total) . ' ,-' }}
+                                </h3>
                                 <p class="text-white mb-0">{{ date('d-m-Y') }}</p>
                             </div>
                         </div>
@@ -287,12 +342,8 @@
                 <?php
       }
       ?>
-
             </div>
-
-
             <div class="row">
-
                 <style type="text/css">
                     .card-grafik canvas {
                         width: 100% !important;
@@ -300,83 +351,70 @@
                         height: auto !important;
                     }
                 </style>
-
                 <section class="col-lg-6">
-
                     <div class="card card-grafik">
                         <div class="card-header pt-4">
                             <h5 class="card-title">Grafik Keuangan <b>Per Bulan</b> Di Tahun Ini</h5>
                         </div>
                         <div class="card-body">
-
                             <canvas id="grafik1"></canvas>
 
                         </div>
                     </div>
-
                 </section>
-
-
                 <section class="col-lg-6">
-
                     <div class="card card-grafik">
                         <div class="card-header pt-4">
                             <h5 class="card-title">Grafik Keuangan <b>Per Tahun</b></h5>
                         </div>
                         <div class="card-body">
-
                             <canvas id="grafik2"></canvas>
-
                         </div>
                     </div>
-
                 </section>
-
-
                 <section class="col-lg-12">
-
                     <div class="card card-grafik">
                         <div class="card-header pt-4">
                             <h5 class="card-title">Grafik Keuangan <b>Per Hari</b> Di Bulan Ini</h5>
                         </div>
                         <div class="card-body">
-
                             <div style="overflow-x: scroll;">
                                 <canvas id="grafik3"></canvas>
                             </div>
-
                         </div>
                     </div>
-
                 </section>
-
                 <section class="col-lg-12">
-
                     <div class="card card-grafik">
                         <div class="card-header pt-4">
                             <h5 class="card-title">Grafik Keuangan <b>Per Kategori</b> Bulan Ini</h5>
                         </div>
                         <div class="card-body">
-
+                            <form action="" method="get" class="row">
+                                <div class="col-lg-offset-2 col-lg-2">
+                                    <div class="form-group">
+                                        <label>Tipe</label>
+                                        <select class="form-control" name="kategori" id="filter-jenis"
+                                            onchange="this.form.submit()">
+                                            <option value="">Semua</option>
+                                            @foreach ($jenis as $item)
+                                                <option value="{{ $item->id }}"
+                                                    @isset($_GET['kategori'])
+                                                  {{ $item->id == $_GET['kategori'] ? "selected='selected'" : '' }}
+                                              @endisset>
+                                                    {{ $item->tipe }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            </form>
                             <canvas id="grafik4"></canvas>
-
                         </div>
                     </div>
-
                 </section>
-
-
-
             </div>
-
-
-
         </div>
-        <!-- #/ container -->
     </div>
-
-
-
     <script>
         var randomScalingFactor = function() {
             return Math.round(Math.random() * 100)
@@ -394,11 +432,7 @@
                         <?php
                         for ($bulan = 1; $bulan <= 12; $bulan++) {
                             $tahun = date('Y');
-                            $pemasukan_perbulan = DB::table('transaksi')
-                            ->select(DB::raw('SUM(nominal) as total'))
-                            ->where('jenis', $pemasukan)
-                            ->whereMonth('tanggal', $bulan)
-                            ->whereYear('tanggal', $tahun)->first();
+                            $pemasukan_perbulan = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pemasukan)->whereMonth('tanggal', $bulan)->whereYear('tanggal', $tahun)->first();
                             $total = $pemasukan_perbulan->total;
                             if ($pemasukan_perbulan->total == '') {
                                 echo '0,';
@@ -444,7 +478,7 @@
                 ->get();
                 foreach($thn2 as $t){
             ?> "<?php echo $t->tahun; ?>",
-                    <?php
+                <?php
                     }
                 ?>
             ],
@@ -551,13 +585,12 @@
                     ?>
                 ]
             }]
-
         }
 
 
         var barChartData4 = {
             labels: [
-                @foreach ($kategori as $k)
+                @foreach ($kategori_filter as $k)
                     "{{ $k->kategori }}",
                 @endforeach
             ],
@@ -568,7 +601,7 @@
                 highlightFill: "rgba(220,220,220,0.75)",
                 highlightStroke: "rgba(220,220,220,1)",
                 data: [
-                    @foreach ($kategori as $k)
+                    @foreach ($kategori_filter as $k)
                         <?php
                         $id_kategori = $k->id;
                         $pemasukan_perkategori = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pemasukan)->where('kategori_id', $id_kategori)->first();
@@ -588,7 +621,7 @@
                 highlightFill: "rgba(151,187,205,0.75)",
                 highlightStroke: "rgba(254, 29, 29, 0)",
                 data: [
-                    @foreach ($kategori as $k)
+                    @foreach ($kategori_filter as $k)
                         <?php
                         $bln = date('m');
                         $id_kategori = $k->id;
@@ -605,8 +638,6 @@
             }]
 
         }
-
-
 
         window.onload = function() {
             var ctx = document.getElementById("grafik1").getContext("2d");

@@ -13,7 +13,7 @@ class Transaksi extends Model
 
 	public function kategori()
 	{
-		return $this->belongsTo('App\Kategori');
+		return $this->belongsTo(Kategori::class,'kategori_id');
 	}
 
     public function siswa()

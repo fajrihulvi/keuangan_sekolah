@@ -40,11 +40,13 @@
                                     <div class="modal-body">
                                         @csrf
                                         <div class="form-group">
-                                            <label>Nama Kategori</label>
+                                            <label>Nama</label>
                                             <input type="text" name="kategori" required="required" class="form-control"
                                                 placeholder="Nama Kategori ..">
+                                        </div>
+                                        <div class="form-group">
                                             <label>Jenis</label>
-                                                <select class="form-control @error('id_tipe') is-invalid @enderror"
+                                            <select class="form-control @error('id_tipe') is-invalid @enderror"
                                                 name="id_tipe">
                                                 @foreach ($jenis as $row)
                                                     <option <?php if (old('id_tipe') == $row->id) {
@@ -54,7 +56,18 @@
                                                 @endforeach
                                             </select>
                                         </div>
-
+                                        <div class="form-group">
+                                            <label>Untuk siswa</label>
+                                            <select class="form-control @error('untuk_siswa') is-invalid @enderror"
+                                                name="untuk_siswa">
+                                                <option <?php if (old('untuk_siswa') == 'Y') {
+                                                    echo "selected='selected'";
+                                                } ?> value="Y">Ya</option>
+                                                <option <?php if (old('untuk_siswa') == 'N') {
+                                                    echo "selected='selected'";
+                                                } ?> value="N">Tidak</option>
+                                            </select>
+                                        </div>
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-default" data-dismiss="modal"><i
@@ -83,8 +96,8 @@
                                 @foreach ($kategori as $id => $k)
                                     <tr>
                                         <td class="text-center">{{ $no++ }}</td>
-                                        <td class="text-center">{{ $k->kategori }}</td>
-                                        <td class="text-center">{{ $k->untuk_siswa === "Y"? "Ya":"Tidak" }}</td>
+                                        <td class="text-center">{{ $k->kategori }} <span class="font-italic">({{ $k->jenis->tipe }})</span></td>
+                                        <td class="text-center">{{ $k->untuk_siswa === 'Y' ? 'Ya' : 'Tidak' }}</td>
                                         <td class="text-center">
                                             <button type="button" class="btn btn-default btn-sm" data-toggle="modal"
                                                 data-target="#edit_kategori_{{ $k->id }}">
@@ -96,18 +109,16 @@
                                             </button>
                                         </td>
                                     </tr>
-                                    <form action="{{ route('kategori.update', ['id' => $k->id]) }}"
-                                        method="post">
-                                        <div class="modal fade" id="edit_kategori_{{ $k->id }}"
-                                            tabindex="-1" role="dialog"
-                                            aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal fade" id="edit_kategori_{{ $k->id }}" tabindex="-1"
+                                        role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <form action="{{ route('kategori.update', ['id' => $k->id]) }}" method="post">
                                             <div class="modal-dialog" role="document">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
                                                         <h5 class="modal-title" id="exampleModalLabel">Edit
                                                             Kategori</h5>
-                                                        <button type="button" class="close"
-                                                            data-dismiss="modal" aria-label="Close">
+                                                        <button type="button" class="close" data-dismiss="modal"
+                                                            aria-label="Close">
                                                             <span aria-hidden="true">&times;</span>
                                                         </button>
                                                     </div>
@@ -120,18 +131,40 @@
                                                             <label>Nama Kategori</label>
                                                             <input type="hidden" name="id"
                                                                 value="{{ $k->id }}">
-                                                            <input type="text" name="nama"
-                                                                required="required" class="form-control"
-                                                                placeholder="Nama Kategori .."
-                                                                value="{{ $k->kategori }}"
-                                                                style="width:100%">
+                                                            <input type="text" name="kategori" required="required"
+                                                                class="form-control" placeholder="Nama Kategori .."
+                                                                value="{{ $k->kategori }}" style="width:100%">
+                                                        </div>
+
+                                                        <div class="form-group">
+                                                            <label>Jenis</label>
+                                                            <select class="form-control @error('id_tipe') is-invalid @enderror"
+                                                                name="id_tipe">
+                                                                @foreach ($jenis as $row)
+                                                                    <option <?php if (old('id_tipe') == $row->id) {
+                                                                        echo "selected='selected'";
+                                                                    } ?> value="{{ $row->id }}">
+                                                                        {{ $row->tipe }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Untuk siswa</label>
+                                                            <select class="form-control @error('untuk_siswa') is-invalid @enderror"
+                                                                name="untuk_siswa">
+                                                                <option @if ($k->untuk_siswa == 'Y')
+                                                                    selected="selected"
+                                                                @endif value="Y">Ya</option>
+                                                                <option @if ($k->untuk_siswa == 'N')
+                                                                    selected="selected"
+                                                                @endif value="N">Tidak</option>
+                                                            </select>
                                                         </div>
 
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-default"
-                                                            data-dismiss="modal"><i
-                                                                class="ti-close m-r-5 f-s-12"></i>
+                                                            data-dismiss="modal"><i class="ti-close m-r-5 f-s-12"></i>
                                                             Tutup</button>
                                                         <button type="submit" class="btn btn-primary"><i
                                                                 class="fa fa-paper-plane m-r-5"></i>
@@ -139,48 +172,41 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                        </form>
                                         </div>
-                                    </form>
 
                                     <!-- modal hapus -->
-                                    <form method="POST"
-                                        action="{{ route('kategori.delete', ['id' => $k->id]) }}">
-                                        <div class="modal fade" id="hapus_kategori_{{ $k->id }}"
-                                            tabindex="-1" role="dialog"
-                                            aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal fade" id="hapus_kategori_{{ $k->id }}" tabindex="-1"
+                                        role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                        <form method="POST" action="{{ route('kategori.delete',$k->id) }}">
+                                            @csrf
+                                            @method('delete')
                                             <div class="modal-dialog" role="document">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
                                                         <h5 class="modal-title" id="exampleModalLabel">
                                                             Peringatan!
                                                         </h5>
-                                                        <button type="button" class="close"
-                                                            data-dismiss="modal" aria-label="Close">
+                                                        <button type="button" class="close" data-dismiss="modal"
+                                                            aria-label="Close">
                                                             <span aria-hidden="true">&times;</span>
                                                         </button>
                                                     </div>
                                                     <div class="modal-body">
-
                                                         <p>Yakin ingin menghapus data ini ?</p>
-
-                                                        @csrf
-                                                        {{ method_field('DELETE') }}
-
-
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-default"
-                                                            data-dismiss="modal"><i
-                                                                class="ti-close m-r-5 f-s-12"></i>
+                                                            data-dismiss="modal"><i class="ti-close m-r-5 f-s-12"></i>
                                                             Batal</button>
-                                                        <button type="submit" class="btn btn-primary"><i
+                                                            <button type="submit" class="btn btn-primary"><i
                                                                 class="fa fa-paper-plane m-r-5"></i> Ya,
                                                             Hapus</button>
                                                     </div>
                                                 </div>
                                             </div>
+                                        </form>
                                         </div>
-                                    </form>
                                 @endforeach
                             </tbody>
                         </table>

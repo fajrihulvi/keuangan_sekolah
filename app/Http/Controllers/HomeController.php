@@ -20,6 +20,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Jenis;
 use App\Models\Kelas;
 use App\Models\Siswa;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\FromView;
 
 class HomeController extends Controller
@@ -46,55 +47,96 @@ class HomeController extends Controller
         $tanggal = date('Y-m-d');
         $bulan = date('m');
         $tahun = date('Y');
-
         $jenis = Jenis::all();
+        $pemasukan = 0;
+        $pengeluaran = 0;
+        $bantuan = 0;
+
+        foreach ($jenis as $item) {
+            if (Str::lower($item->tipe) == 'pemasukan') {
+                $pemasukan = $item->id;
+            } elseif (Str::lower($item->tipe) == 'pengeluaran') {
+                $pengeluaran = $item->id;
+            } else {
+                $bantuan = $item->id;
+            }
+        }
 
         $pemasukan_hari_ini = DB::table('transaksi')
         ->select(DB::raw('SUM(nominal) as total'))
-        ->where('jenis','1')
+        ->where('jenis',$pemasukan)
         ->whereDate('tanggal',$tanggal)
         ->first();
 
         $pemasukan_bulan_ini = DB::table('transaksi')
         ->select(DB::raw('SUM(nominal) as total'))
-        ->where('jenis','1')
+        ->where('jenis',$pemasukan)
         ->whereMonth('tanggal',$bulan)
         ->first();
-        // dd($pemasukan_bulan_ini);
 
         $pemasukan_tahun_ini = DB::table('transaksi')
         ->select(DB::raw('SUM(nominal) as total'))
-        ->where('jenis','1')
+        ->where('jenis',$pemasukan)
         ->whereYear('tanggal',$tahun)
         ->first();
 
         $seluruh_pemasukan = DB::table('transaksi')
         ->select(DB::raw('SUM(nominal) as total'))
-        ->where('jenis','1')
+        ->where('jenis',$pemasukan)
         ->first();
 
         $pengeluaran_hari_ini = DB::table('transaksi')
         ->select(DB::raw('SUM(nominal) as total'))
-        ->where('jenis','3')
+        ->where('jenis',$pengeluaran)
         ->whereDate('tanggal',$tanggal)
         ->first();
 
         $pengeluaran_bulan_ini = DB::table('transaksi')
         ->select(DB::raw('SUM(nominal) as total'))
-        ->where('jenis','3')
+        ->where('jenis',$pengeluaran)
         ->whereMonth('tanggal',$bulan)
         ->first();
 
         $pengeluaran_tahun_ini = DB::table('transaksi')
         ->select(DB::raw('SUM(nominal) as total'))
-        ->where('jenis','3')
+        ->where('jenis',$pengeluaran)
         ->whereYear('tanggal',$tahun)
         ->first();
 
         $seluruh_pengeluaran = DB::table('transaksi')
         ->select(DB::raw('SUM(nominal) as total'))
-        ->where('jenis','3')
+        ->where('jenis',$pengeluaran)
         ->first();
+
+        $bantuan_hari_ini = DB::table('transaksi')
+        ->select(DB::raw('SUM(nominal) as total'))
+        ->where('jenis',$bantuan)
+        ->whereDate('tanggal',$tanggal)
+        ->first();
+
+        $bantuan_bulan_ini = DB::table('transaksi')
+        ->select(DB::raw('SUM(nominal) as total'))
+        ->where('jenis',$bantuan)
+        ->whereMonth('tanggal',$bulan)
+        ->first();
+
+        $bantuan_tahun_ini = DB::table('transaksi')
+        ->select(DB::raw('SUM(nominal) as total'))
+        ->where('jenis',$bantuan)
+        ->whereYear('tanggal',$tahun)
+        ->first();
+
+        $seluruh_bantuan = DB::table('transaksi')
+        ->select(DB::raw('SUM(nominal) as total'))
+        ->where('jenis',$bantuan)
+        ->first();
+
+        $kategori_filter = $kategori;
+        if(isset($_GET['kategori']))
+        {
+            $kategori_filter = Kategori::where('id_tipe',$_GET['kategori'])->get();
+            if(!$kategori_filter) $kategori_filter = $kategori;
+        }
 
         return view('app.index',
             [
@@ -106,16 +148,21 @@ class HomeController extends Controller
                 'pengeluaran_bulan_ini' => $pengeluaran_bulan_ini,
                 'pengeluaran_tahun_ini' => $pengeluaran_tahun_ini,
                 'seluruh_pengeluaran' => $seluruh_pengeluaran,
+                'bantuan_hari_ini' => $bantuan_hari_ini,
+                'bantuan_bulan_ini' => $bantuan_bulan_ini,
+                'bantuan_tahun_ini' => $bantuan_tahun_ini,
+                'seluruh_bantuan' => $seluruh_bantuan,
                 'kategori' => $kategori,
                 'transaksi' => $transaksi,
-                'jenis' => Jenis::all(),
+                'jenis' => $jenis,
+                'kategori_filter'=>$kategori_filter
             ]
         );
     }
 
     public function kategori()
     {
-        $kategori = Kategori::orderBy('kategori','asc')->get();
+        $kategori = Kategori::with('jenis')->orderBy('kategori','asc')->get();
         $siswa = Siswa::all();
         $kelas = Kelas::all();
         $jenis = Jenis::all();
@@ -126,18 +173,28 @@ class HomeController extends Controller
     {
         $this->validate($req,[
             'kategori' => 'required',
-            'id_tipe' => 'required|exists:jenis,id'
+            'id_tipe' => 'required|exists:jenis,id',
+            'untuk_siswa'=> 'required|in:N,Y'
         ]);
+        // dd($req->all());
         Kategori::create($req->all());
         return redirect('kategori')->with('success','Kategori telah disimpan');
     }
 
     public function kategori_update($id, Request $req)
     {
-        $nama = $req->input('nama');
+        $this->validate($req,[
+            'kategori' => 'required',
+            'id_tipe' => 'required|exists:jenis,id',
+            'untuk_siswa'=> 'required|in:N,Y'
+        ]);
         $kategori = Kategori::find($id);
-        $kategori->kategori = $nama;
-        $kategori->save();
+        if(!$kategori)
+        {
+            return redirect('kategori')->with('error','Kategori tidak ditemukan');
+        }
+        $kategori->update($req->all());
+        // $kategori->save();
         return redirect('kategori')->with('success','Kategori telah diupdate');
     }
 
@@ -215,6 +272,9 @@ class HomeController extends Controller
 
     public function transaksi_aksi(Request $req)
     {
+        $req->merge([
+            'nominal' => preg_replace('/\D/', '', $req->nominal)
+        ]);
         $req->validate([
             'tanggal'=>"date|required",
             'jenis'=>"required",

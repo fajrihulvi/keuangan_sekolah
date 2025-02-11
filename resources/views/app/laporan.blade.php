@@ -46,22 +46,33 @@
           @csrf
           <div class="row">
 
-            <div class="col-lg-offset-2 col-lg-3">
+            <div class="col-lg-offset-2 col-lg-2">
               <div class="form-group">
                 <label>Dari Tanggal</label>
                 <input class="form-control datepicker2" placeholder="Dari Tanggal" type="text" required="required" name="dari" value="<?php if(isset($_GET['dari'])){echo $_GET['dari'];} ?>">
               </div>
             </div>
-            <div class="col-lg-3">
+            <div class="col-lg-2">
               <div class="form-group">
                 <label>Sampai Tanggal</label>
                 <input class="form-control datepicker2" placeholder="Sampai Tanggal" type="text" required="required" name="sampai" value="<?php if(isset($_GET['sampai'])){echo $_GET['sampai'];} ?>">
               </div>
             </div>
-            <div class="col-lg-4">
+            <div class="col-lg-2">
+              <div class="form-group">
+                <label>Jenis</label>
+                <select id="jenis-filter" class="form-control">
+                    <option value="">--- Pilih Jenis ---</option>
+                    @foreach ($jenis as $item)
+                        <option value="{{ $item->id }}">{{$item->tipe}}</option>
+                    @endforeach
+                </select>
+              </div>
+            </div>
+            <div class="col-lg-3">
               <div class="form-group">
                 <label>Kategori</label>
-                <select class="form-control" name="kategori">
+                <select class="form-control" name="kategori" id="kategori-filter">
                   <option value="">Semua Kategori</option>
                   @foreach($kategori as $k)
                   <option <?php if(isset($_GET['kategori'])){ if($_GET['kategori'] == $k->id){echo "selected='selected'";} } ?> value="{{ $k->id }}">{{ $k->kategori }}</option>
@@ -210,5 +221,34 @@
   </div>
   <!-- #/ container -->
 </div>
+@endsection
+
+@section('script')
+<script>
+    $(document).ready(() => {
+        const $jenis = $("#jenis-filter");
+        const $kategori = $("#kategori-filter");
+
+        $jenis.on("change",() =>{
+            kategoriData = @json($kategori);
+            kategoriData = kategoriData.filter(data => {
+                return data.id_tipe == $jenis.val();
+            });
+            console.info(kategoriData);
+            $kategori.empty();
+            $kategori.append($('<option>', {
+                value: '',
+                text: "Semua Kategori"
+            }))
+            $jenis.val() == "" ? kategoriData = @json($kategori) : '';
+            kategoriData.forEach(data => {
+                $kategori.append($('<option>', {
+                    value: data.id,
+                    text: data.kategori
+                }))
+            })
+        })
+    })
+</script>
 
 @endsection
