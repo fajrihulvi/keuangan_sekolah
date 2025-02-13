@@ -106,8 +106,8 @@ foreach ($jenis as $item) {
 
                                         <div class="form-group" id="kelas">
                                             <label>Kelas</label>
-                                            <select class="form-control"name="kelas" id="kelas-select"
-                                                data-placeholder="--- Pilih Kelas ---">
+                                            <select class="form-control js-example-basic-single" name="kelas"
+                                                id="kelas-select" data-placeholder="--- Pilih Kelas ---">
                                                 <option value=""></option>
                                             </select>
                                         </div>
@@ -322,36 +322,44 @@ foreach ($jenis as $item) {
                                                                         style="width: 100%;margin-bottom:20px">
                                                                         <label>Kategori</label>
                                                                         <select class="form-control py-0 kategori-edit"
-                                                                            required="required" name="kategori"
-                                                                            style="width: 100%">
+                                                                            required="required" style="width: 100%">
                                                                             <option value="">--- Pilih Kategori ---
                                                                             </option>
-                                                                            {{-- @foreach ($kategori as $k)
+                                                                            @foreach ($kategori as $k)
                                                                                 <option
                                                                                     {{ $t->kategori->id == $k->id ? "selected='selected'" : '' }}
                                                                                     value="{{ $k->id }}">
                                                                                     {{ $k->kategori }}</option>
-                                                                            @endforeach --}}
+                                                                            @endforeach
                                                                         </select>
                                                                     </div>
 
                                                                     <div class="form-group" id="kelas">
                                                                         <label>Kelas</label>
                                                                         <select class="form-control"name="kelas"
-                                                                            id="kelas-select"
                                                                             style="width: 100%;margin-bottom:20px">
                                                                             <option value="">--- Pilih Kelas ---
                                                                             </option>
+                                                                            @foreach ($kelas as $kelas_item)
+                                                                                <option value="{{ $kelas_item->id }}" >
+                                                                                    {{ $kelas_item->nama_kelas }}
+                                                                                </option>
+                                                                            @endforeach
                                                                         </select>
+                                                                        <p>{{ $t->siswa->id_kelas ?? 'Tidak ada kelas' }}
+                                                                        </p>
                                                                     </div>
 
                                                                     <div class="form-group" id="siswa">
                                                                         <label>Siswa</label>
                                                                         <select class="form-control" name="id_siswa"
-                                                                            id="siswa-select"
                                                                             style="width: 100%;margin-bottom:20px">
-                                                                            <option value="">--- Pilih Siswa ---
-                                                                            </option>
+                                                                            {{-- @foreach ($siswa as $item)
+                                                                                <option
+                                                                                    {{ $t->siswa->id == $item->id ? "selected='selected'" : '' }}
+                                                                                    value="{{ $item->id }}">
+                                                                                    {{ $item->nama_lengkap }}</option>
+                                                                            @endforeach --}}
                                                                         </select>
                                                                     </div>
 
@@ -454,7 +462,6 @@ foreach ($jenis as $item) {
             const siswa = $("#siswa");
             const siswaSelect = $("#siswa-select");
             const kelasSelect = $("#kelas-select");
-
             let kategoriData = @json($kategori);
             let jenisKategoriFilter = @json($kategori);
 
@@ -462,68 +469,73 @@ foreach ($jenis as $item) {
                 $kategori.append($('<option>', {
                     value: data.id,
                     text: data.kategori
-                }));
+                }))
                 $kategoriFilter.append($('<option>', {
                     value: data.id,
                     text: data.kategori
-                }));
-            });
+                }))
+            })
 
             $('#jenis').on("change", () => {
+                console.log('test')
                 kategoriData = @json($kategori);
                 kategoriData = kategoriData.filter(data => {
                     return data.id_tipe == $('#jenis').val();
                 });
-                $kategori.empty().append('<option value="">--- Pilih Kategori ---</option>');
+                $kategori.empty();
+                $kategori.append($('<option>', {
+                    value: '',
+                    text: "--- Pilih Kategori ---"
+                }))
                 $('#jenis').val() == "" ? kategoriData = @json($kategori) : '';
                 kategoriData.forEach(data => {
                     $kategori.append($('<option>', {
                         value: data.id,
                         text: data.kategori
-                    }));
-                });
-                $kategori.trigger('change');
+                    }))
+                })
             });
 
             $jenisFilter.on("change", () => {
                 jenisKategoriFilter = @json($kategori);
                 jenisKategoriFilter = jenisKategoriFilter.filter(data => data.id_tipe == $jenisFilter
                     .val());
-                $kategoriFilter.empty().append('<option value="">Semua</option>');
+                $kategoriFilter.empty();
                 $jenisFilter.val() == "" ? jenisKategoriFilter = @json($kategori) : '';
+                $kategoriFilter.append($('<option>', {
+                    value: '',
+                    text: "Semua"
+                }));
                 jenisKategoriFilter.forEach(data => {
                     $kategoriFilter.append($('<option>', {
                         value: data.id,
                         text: data.kategori
                     }));
-                });
-                $kategoriFilter.trigger('change');
-            });
+                })
+            })
 
-            kelas.hide();
-            siswa.hide();
+            kelas.hide()
+            siswa.hide()
             $kategori.on("change", function() {
-                kelas.hide();
-                siswa.hide();
-                const found = kategoriData.find(item => item.id == $kategori.val());
-                if (found?.untuk_siswa === "Y") {
-                    kelas.show();
+                kelas.hide()
+                siswa.hide()
+                const found = kategoriData.find(item => {
+                    return item.id == $kategori.val()
+                })
+                if (found.untuk_siswa === "Y") {
+                    kelas.show()
                     $.ajax({
                         url: "{{ route('kelas') }}",
                         type: "GET",
                         dataType: "json",
                         success: data => {
-                            kelasSelect.empty().append(
-                                '<option value="">--- Pilih Kelas ---</option>');
                             data.forEach(item => {
                                 kelasSelect.append(
                                     `<option value="${item.id}">${item.nama_kelas}</option>`
-                                );
-                            });
-                            kelasSelect.trigger('change');
+                                )
+                            })
                         }
-                    });
-
+                    })
                     kelas.on("change", () => {
                         siswa.show();
                         siswaSelect.empty();
@@ -532,30 +544,28 @@ foreach ($jenis as $item) {
                             type: "GET",
                             dataType: "json",
                             success: data => {
-                                siswaSelect.append(
-                                    '<option value="">--- Pilih Siswa ---</option>');
+                                siswaSelect.append($('<option>'))
                                 data.forEach(item => {
                                     siswaSelect.append(
                                         `<option value="${item.id}">${item.nama_lengkap}</option>`
-                                    );
-                                });
-                                siswaSelect.trigger('change');
+                                    )
+                                })
                             }
-                        });
-                    });
+                        })
+                    })
                 } else {
                     kelas.hide();
                     siswa.hide();
                 }
-            });
-
+            })
 
             $('.js-example-basic-single').select2({
                 width: '100%',
                 placeholder: 'Pilih Opsi',
                 allowClear: true,
                 dropdownParent: $('#exampleModal'),
-                minimumResultsForSearch: Infinity
+                // theme: "bootstrap4",
+                minimumResultsForSearch: Infinity,
             }).addClass("form-control");
 
             $('#kelas-select').select2({
@@ -569,128 +579,9 @@ foreach ($jenis as $item) {
                 width: '100%',
                 placeholder: '--- Pilih Siswa ---',
                 allowClear: true,
+                // theme: "bootstrap4",
                 dropdownParent: $('#exampleModal')
             }).addClass("form-control");
-
-            let kategoriData = @json($kategori);
-
-            $(".modal-edit").on("show.bs.modal", function() {
-                let modal = $(this);
-                let idTransaksi = modal.data("id");
-                let jenisTerpilih = modal.data("jenis");
-                let kategoriTerpilih = modal.data("kategori");
-
-                let kategoriSelect = modal.find(".kategori-edit");
-                let jenisSelect = modal.find(".jenis-edit");
-                let kelasGroup = modal.find(".kelas-group");
-                let siswaGroup = modal.find(".siswa-group");
-                let kelasSelect = modal.find("#kelas-select");
-                let siswaSelect = modal.find("#siswa-select");
-
-                kelasGroup.addClass("d-none");
-                siswaGroup.addClass("d-none");
-                kelasSelect.empty().append('<option value="">--- Pilih Kelas ---</option>');
-                siswaSelect.empty().append('<option value="">--- Pilih Siswa ---</option>');
-
-                jenisSelect.val(jenisTerpilih).trigger("change");
-
-                let kategoriFiltered = kategoriData.filter(k => k.id_tipe == jenisTerpilih);
-                kategoriSelect.empty().append(
-                    '<option value="">--- Pilih Kategori ---</option>');
-                kategoriFiltered.forEach(data => {
-                    let isSelected = data.id == kategoriTerpilih ? "selected" : "";
-                    kategoriSelect.append(
-                        `<option value="${data.id}" ${isSelected}>${data.kategori}</option>`
-                    );
-                });
-
-                jenisSelect.on("change", function() {
-                    let selectedJenis = $(this).val();
-                    let filteredKategori = kategoriData.filter(k => k.id_tipe ==
-                        selectedJenis);
-                    kategoriSelect.empty().append(
-                        '<option value="">--- Pilih Kategori ---</option>');
-
-                    filteredKategori.forEach(data => {
-                        kategoriSelect.append(
-                            `<option value="${data.id}">${data.kategori}</option>`
-                        );
-                    });
-                    kategoriSelect.trigger("change");
-                });
-
-                kategoriSelect.on("change", function() {
-                    let selectedKategori = $(this).val();
-                    let found = kategoriData.find(k => k.id == selectedKategori);
-
-                    if (found?.untuk_siswa === "Y") {
-                        kelasGroup.removeClass("d-none");
-                        $.ajax({
-                            url: "{{ route('kelas') }}",
-                            type: "GET",
-                            dataType: "json",
-                            success: data => {
-                                kelasSelect.empty().append(
-                                    '<option value="">--- Pilih Kelas ---</option>'
-                                );
-                                data.forEach(item => {
-                                    kelasSelect.append(
-                                        `<option value="${item.id}">${item.nama_kelas}</option>`
-                                    );
-                                });
-                            }
-                        });
-
-                        kelasSelect.on("change", function() {
-                            siswaGroup.removeClass("d-none");
-                            $.ajax({
-                                url: "{{ route('siswa-kelas') }}?kelas=" +
-                                    kelasSelect.val(),
-                                type: "GET",
-                                dataType: "json",
-                                success: data => {
-                                    siswaSelect.empty().append(
-                                        '<option value="">--- Pilih Siswa ---</option>'
-                                    );
-                                    data.forEach(item => {
-                                        siswaSelect.append(
-                                            `<option value="${item.id}">${item.nama_lengkap}</option>`
-                                        );
-                                    });
-                                }
-                            });
-                        });
-                    } else {
-                        kelasGroup.addClass("d-none");
-                        siswaGroup.addClass("d-none");
-                    }
-                });
-                kategoriSelect.trigger("change");
-            });
-
-            $('input[name="nominal"]').on('input', function() {
-                let value = $(this).val().replace(/\D/g, "");
-                let formattedValue = new Intl.NumberFormat("id-ID", {
-                    style: "currency",
-                    currency: "IDR",
-                    minimumFractionDigits: 0
-                }).format(value);
-
-                $(this).val(formattedValue.replace("Rp", "").trim());
-            });
-
-
-            $('input[name="nominal"]').on('blur', function() {
-                let value = $(this).val().replace(/\D/g, "");
-                if (value) {
-                    $(this).val(new Intl.NumberFormat("id-ID", {
-                        style: "currency",
-                        currency: "IDR",
-                        minimumFractionDigits: 0
-                    }).format(value).replace("Rp", "").trim());
-                }
-            });
-
-        });
+        })
     </script>
 @endsection
