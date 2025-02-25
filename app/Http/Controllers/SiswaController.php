@@ -12,6 +12,11 @@ class SiswaController extends Controller
     /**
      * Display a listing of the resource.
      */
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function index()
     {
         $data = Siswa::all();
@@ -35,6 +40,7 @@ class SiswaController extends Controller
         $this->validate($request,[
             'nama_lengkap'=>'required|min:5',
             'alamat'=>'required|min:5',
+            'nisn'=>'required|min:10|max:10',
             'id_kelas'=>'required|exists:kelas,id'
         ]);
 
@@ -63,6 +69,7 @@ class SiswaController extends Controller
     {
         $this->validate($request,[
             'nama_lengkap'=>'required|min:5',
+            'nisn'=>'required|min:10|max:10',
             'alamat'=>'required|min:5',
             'id_kelas'=>'required|exists:kelas,id'
         ]);

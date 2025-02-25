@@ -36,6 +36,7 @@
               <tr>
                 <th width="1%">NO</th>
                 <th>NAMA</th>
+                <th class="text-center">NISN</th>
                 <th class="text-center">Kelas</th>
                 <th class="text-center">Alamat</th>
                 <th class="text-center" width="10%">OPSI</th>
@@ -51,6 +52,7 @@
                 <td>
                     {{ $row->nama_lengkap }}
                 </td>
+                <td class="text-center">{{ $row->nisn }}</td>
                 <td class="text-center">{{ $row->kelas->nama_kelas }}</td>
                 <td class="text-center">{{ $row->alamat }}</td>
                 <td>

@@ -1,4 +1,7 @@
 <?php
+
+use App\Transaksi;
+
 $pemasukan = null;
 $pengeluaran = null;
 $bantuan = null;
@@ -22,7 +25,7 @@ foreach ($jenis as $item) {
                 <div class="col-lg-4 col-sm-12">
                     <div class="card gradient-7">
                         <div class="card-body">
-                            <h3 class="card-title text-white">Pilih Session</h3>
+                            <h3 class="card-title text-white">Pilih Durasi Tanggal</h3>
                             <form method="get" action="">
                                 <select class="form-control" name="session" onchange="this.form.submit()">
                                     <option <?php if (isset($_GET['session'])) {
@@ -395,7 +398,7 @@ foreach ($jenis as $item) {
                                     <div class="form-group">
                                         <label>Tipe</label>
                                         <select class="form-control" name="kategori" id="filter-jenis"
-                                            onchange="this.form.submit()">
+                                            >
                                             <option value="">Semua</option>
                                             @foreach ($jenis as $item)
                                                 <option value="{{ $item->id }}"
@@ -415,136 +418,18 @@ foreach ($jenis as $item) {
             </div>
         </div>
     </div>
-    <script>
-        var randomScalingFactor = function() {
-            return Math.round(Math.random() * 100)
-        };
+@endsection
 
-        var barChartData = {
-            labels: ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"],
-            datasets: [{
-                    label: 'Pemasukan',
-                    fillColor: "rgba(51, 240, 113, 0.61)",
-                    strokeColor: "rgba(11, 246, 88, 0.61)",
-                    highlightFill: "rgba(220,220,220,0.75)",
-                    highlightStroke: "rgba(220,220,220,1)",
-                    data: [
-                        <?php
-                        for ($bulan = 1; $bulan <= 12; $bulan++) {
-                            $tahun = date('Y');
-                            $pemasukan_perbulan = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pemasukan)->whereMonth('tanggal', $bulan)->whereYear('tanggal', $tahun)->first();
-                            $total = $pemasukan_perbulan->total;
-                            if ($pemasukan_perbulan->total == '') {
-                                echo '0,';
-                            } else {
-                                echo $total . ',';
-                            }
-                        }
-                        ?>
-                    ]
-                },
-                {
-                    label: 'Pengeluaran',
-                    fillColor: "rgba(255, 51, 51, 0.8)",
-                    strokeColor: "rgba(248, 5, 5, 0.8)",
-                    highlightFill: "rgba(151,187,205,0.75)",
-                    highlightStroke: "rgba(151,187,205,1)",
-                    data: [
-                        <?php
-                        for ($bulan = 1; $bulan <= 12; $bulan++) {
-                            $tahun = date('Y');
-                            $pengeluaran_perbulan = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pengeluaran)->whereMonth('tanggal', $bulan)->whereYear('tanggal', $tahun)->first();
-                            $total = $pengeluaran_perbulan->total;
-                            if ($pengeluaran_perbulan->total == '') {
-                                echo '0,';
-                            } else {
-                                echo $total . ',';
-                            }
-                        }
-                        ?>
-                    ]
-                }
-            ]
+@section('script')
+<script>
 
-        }
+    var randomScalingFactor = function() {
+        return Math.round(Math.random() * 100)
+    };
 
-        var barChartData2 = {
-            labels: [
-                <?php
-                $thn2 = DB::table('transaksi')
-                ->select(DB::raw('year(tanggal) as tahun'))
-                ->distinct()
-                ->orderBy('tahun','asc')
-                ->get();
-                foreach($thn2 as $t){
-            ?> "<?php echo $t->tahun; ?>",
-                <?php
-                    }
-                ?>
-            ],
-            datasets: [{
-                    label: 'Pemasukan',
-                    fillColor: "rgba(51, 240, 113, 0.61)",
-                    strokeColor: "rgba(11, 246, 88, 0.61)",
-                    highlightFill: "rgba(220,220,220,0.75)",
-                    highlightStroke: "rgba(220,220,220,1)",
-                    data: [
-                        <?php
-                        foreach ($thn2 as $t) {
-                            $thn = $t->tahun;
-                            $tahun = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pemasukan)->whereYear('tanggal', $thn)->first();
-                            $total = $tahun->total;
-                            if ($tahun->total == '') {
-                                echo '0,';
-                            } else {
-                                echo $total . ',';
-                            }
-                        }
-                        ?>
-                    ]
-                },
-                {
-                    label: 'Pengeluaran',
-                    fillColor: "rgba(255, 51, 51, 0.8)",
-                    strokeColor: "rgba(248, 5, 5, 0.8)",
-                    highlightFill: "rgba(151,187,205,0.75)",
-                    highlightStroke: "rgba(254, 29, 29, 0)",
-                    data: [
-                        <?php
-                        foreach ($thn2 as $t) {
-                            $thn = $t->tahun;
-                            $tahun = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pengeluaran)->whereYear('tanggal', $thn)->first();
-                            $total = $tahun->total;
-                            if ($tahun->total == '') {
-                                echo '0,';
-                            } else {
-                                echo $total . ',';
-                            }
-                        }
-                        ?>
-                    ]
-                }
-            ]
-
-        }
-
-        var barChartData3 = {
-            <?php
-            $dateBegin = strtotime('first day of this month');
-            $dateEnd = strtotime('last day of this month');
-
-            $awal = date('Y-m-d', $dateBegin);
-            $akhir = date('Y-m-d', $dateEnd);
-            ?>
-            labels: [
-                <?php
-      for($a=$awal;$a<=$akhir;$a++){
-        ?> "<?php echo date('d-m-Y', strtotime($a)); ?>",
-                <?php
-      }
-      ?>
-            ],
-            datasets: [{
+    var barChartData = {
+        labels: ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"],
+        datasets: [{
                 label: 'Pemasukan',
                 fillColor: "rgba(51, 240, 113, 0.61)",
                 strokeColor: "rgba(11, 246, 88, 0.61)",
@@ -552,11 +437,11 @@ foreach ($jenis as $item) {
                 highlightStroke: "rgba(220,220,220,1)",
                 data: [
                     <?php
-                    for ($a = $awal; $a <= $akhir; $a++) {
-                        $tgl = $a;
-                        $pemasukan_perhari = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pemasukan)->whereDate('tanggal', $tgl)->first();
-                        $total = $pemasukan_perhari->total;
-                        if ($pemasukan_perhari->total == '') {
+                    for ($bulan = 1; $bulan <= 12; $bulan++) {
+                        $tahun = date('Y');
+                        $pemasukan_perbulan = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pemasukan)->whereMonth('tanggal', $bulan)->whereYear('tanggal', $tahun)->first();
+                        $total = $pemasukan_perbulan->total;
+                        if ($pemasukan_perbulan->total == '') {
                             echo '0,';
                         } else {
                             echo $total . ',';
@@ -564,7 +449,68 @@ foreach ($jenis as $item) {
                     }
                     ?>
                 ]
-            }, {
+            },
+            {
+                label: 'Pengeluaran',
+                fillColor: "rgba(255, 51, 51, 0.8)",
+                strokeColor: "rgba(248, 5, 5, 0.8)",
+                highlightFill: "rgba(151,187,205,0.75)",
+                highlightStroke: "rgba(151,187,205,1)",
+                data: [
+                    <?php
+                    for ($bulan = 1; $bulan <= 12; $bulan++) {
+                        $tahun = date('Y');
+                        $pengeluaran_perbulan = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pengeluaran)->whereMonth('tanggal', $bulan)->whereYear('tanggal', $tahun)->first();
+                        $total = $pengeluaran_perbulan->total;
+                        if ($pengeluaran_perbulan->total == '') {
+                            echo '0,';
+                        } else {
+                            echo $total . ',';
+                        }
+                    }
+                    ?>
+                ]
+            }
+        ]
+
+    }
+
+    var barChartData2 = {
+        labels: [
+            <?php
+            $thn2 = DB::table('transaksi')
+            ->select(DB::raw('year(tanggal) as tahun'))
+            ->distinct()
+            ->orderBy('tahun','asc')
+            ->get();
+            foreach($thn2 as $t){
+        ?> "<?php echo $t->tahun; ?>",
+            <?php
+                }
+            ?>
+        ],
+        datasets: [{
+                label: 'Pemasukan',
+                fillColor: "rgba(51, 240, 113, 0.61)",
+                strokeColor: "rgba(11, 246, 88, 0.61)",
+                highlightFill: "rgba(220,220,220,0.75)",
+                highlightStroke: "rgba(220,220,220,1)",
+                data: [
+                    <?php
+                    foreach ($thn2 as $t) {
+                        $thn = $t->tahun;
+                        $tahun = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pemasukan)->whereYear('tanggal', $thn)->first();
+                        $total = $tahun->total;
+                        if ($tahun->total == '') {
+                            echo '0,';
+                        } else {
+                            echo $total . ',';
+                        }
+                    }
+                    ?>
+                ]
+            },
+            {
                 label: 'Pengeluaran',
                 fillColor: "rgba(255, 51, 51, 0.8)",
                 strokeColor: "rgba(248, 5, 5, 0.8)",
@@ -572,11 +518,11 @@ foreach ($jenis as $item) {
                 highlightStroke: "rgba(254, 29, 29, 0)",
                 data: [
                     <?php
-                    for ($a = $awal; $a <= $akhir; $a++) {
-                        $tgl = $a;
-                        $pemasukan_perhari = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pengeluaran)->whereDate('tanggal', $tgl)->first();
-                        $total = $pemasukan_perhari->total;
-                        if ($pemasukan_perhari->total == '') {
+                    foreach ($thn2 as $t) {
+                        $thn = $t->tahun;
+                        $tahun = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pengeluaran)->whereYear('tanggal', $thn)->first();
+                        $total = $tahun->total;
+                        if ($tahun->total == '') {
                             echo '0,';
                         } else {
                             echo $total . ',';
@@ -584,25 +530,85 @@ foreach ($jenis as $item) {
                     }
                     ?>
                 ]
-            }]
-        }
+            }
+        ]
 
+    }
 
-        var barChartData4 = {
-            labels: [
-                @foreach ($kategori_filter as $k)
-                    "{{ $k->kategori }}",
-                @endforeach
-            ],
-            datasets: [{
-                label: 'Pemasukan',
-                fillColor: "rgba(51, 240, 113, 0.61)",
-                strokeColor: "rgba(11, 246, 88, 0.61)",
-                highlightFill: "rgba(220,220,220,0.75)",
-                highlightStroke: "rgba(220,220,220,1)",
-                data: [
-                    @foreach ($kategori_filter as $k)
-                        <?php
+    var barChartData3 = {
+        <?php
+        $dateBegin = strtotime('first day of this month');
+        $dateEnd = strtotime('last day of this month');
+
+        $awal = date('Y-m-d', $dateBegin);
+        $akhir = date('Y-m-d', $dateEnd);
+        ?>
+        labels: [
+            <?php
+  for($a=$awal;$a<=$akhir;$a++){
+    ?> "<?php echo date('d-m-Y', strtotime($a)); ?>",
+            <?php
+  }
+  ?>
+        ],
+        datasets: [{
+            label: 'Pemasukan',
+            fillColor: "rgba(51, 240, 113, 0.61)",
+            strokeColor: "rgba(11, 246, 88, 0.61)",
+            highlightFill: "rgba(220,220,220,0.75)",
+            highlightStroke: "rgba(220,220,220,1)",
+            data: [
+                <?php
+                for ($a = $awal; $a <= $akhir; $a++) {
+                    $tgl = $a;
+                    $pemasukan_perhari = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pemasukan)->whereDate('tanggal', $tgl)->first();
+                    $total = $pemasukan_perhari->total;
+                    if ($pemasukan_perhari->total == '') {
+                        echo '0,';
+                    } else {
+                        echo $total . ',';
+                    }
+                }
+                ?>
+            ]
+        }, {
+            label: 'Pengeluaran',
+            fillColor: "rgba(255, 51, 51, 0.8)",
+            strokeColor: "rgba(248, 5, 5, 0.8)",
+            highlightFill: "rgba(151,187,205,0.75)",
+            highlightStroke: "rgba(254, 29, 29, 0)",
+            data: [
+                <?php
+                for ($a = $awal; $a <= $akhir; $a++) {
+                    $tgl = $a;
+                    $pemasukan_perhari = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pengeluaran)->whereDate('tanggal', $tgl)->first();
+                    $total = $pemasukan_perhari->total;
+                    if ($pemasukan_perhari->total == '') {
+                        echo '0,';
+                    } else {
+                        echo $total . ',';
+                    }
+                }
+                ?>
+            ]
+        }]
+    }
+
+    var barChartData4 = {
+        labels: [
+            @foreach ($kategori_filter as $k)
+                "{{ $k->kategori }}",
+            @endforeach
+        ],
+        datasets: [{
+            label: 'Pemasukan',
+            fillColor: "rgba(51, 240, 113, 0.61)",
+            strokeColor: "rgba(11, 246, 88, 0.61)",
+            highlightFill: "rgba(220,220,220,0.75)",
+            highlightStroke: "rgba(220,220,220,1)",
+            data: [
+                @php
+                    foreach ($kategori_filter as $k){
                         $id_kategori = $k->id;
                         $pemasukan_perkategori = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pemasukan)->where('kategori_id', $id_kategori)->first();
                         $total = $pemasukan_perkategori->total;
@@ -611,18 +617,18 @@ foreach ($jenis as $item) {
                         } else {
                             echo $total . ',';
                         }
-                        ?>
-                    @endforeach
-                ]
-            }, {
-                label: 'Pengeluaran',
-                fillColor: "rgba(255, 51, 51, 0.8)",
-                strokeColor: "rgba(248, 5, 5, 0.8)",
-                highlightFill: "rgba(151,187,205,0.75)",
-                highlightStroke: "rgba(254, 29, 29, 0)",
-                data: [
-                    @foreach ($kategori_filter as $k)
-                        <?php
+                    }
+                @endphp
+            ]
+        }, {
+            label: 'Pengeluaran',
+            fillColor: "rgba(255, 51, 51, 0.8)",
+            strokeColor: "rgba(248, 5, 5, 0.8)",
+            highlightFill: "rgba(151,187,205,0.75)",
+            highlightStroke: "rgba(254, 29, 29, 0)",
+            data: [
+                @php
+                    foreach ($kategori_filter as $k){
                         $bln = date('m');
                         $id_kategori = $k->id;
                         $pemasukan_perkategori = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pengeluaran)->where('kategori_id', $id_kategori)->whereMonth('tanggal', $bln)->first();
@@ -632,54 +638,148 @@ foreach ($jenis as $item) {
                         } else {
                             echo $total . ',';
                         }
-                        ?>
-                    @endforeach
-                ]
-            }]
+                    }
+                @endphp
+            ]
+        }]
+    }
 
-        }
+    $(document).ready(() => {
+        let $filterJenis = $('#filter-jenis');
+        let ctx = document.getElementById("grafik4").getContext('2d');
+        $.ajax({
+            url: "{{route('data-cateroty-month')}}",
+            type: "GET",
+            dataType: "json",
+            success: data => {
+                let labels = data.pemasukan.map(item => item.kategori);
+                let dataPemasukan = data.pemasukan.map(item => item.total);
+                let dataPengeluaran = data.pengeluaran.map(item => item.total);
 
-        window.onload = function() {
-            var ctx = document.getElementById("grafik1").getContext("2d");
-            window.myBar = new Chart(ctx).Bar(barChartData, {
-                responsive: true,
-                animation: true,
-                barValueSpacing: 5,
-                barDatasetSpacing: 1,
-                tooltipFillColor: "rgba(0,0,0,0.8)",
-                multiTooltipTemplate: "<%= datasetLabel %> - Rp.<%= value.toLocaleString() %>,-"
-            });
+                var barChartData4 = {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Pemasukan',
+                        fillColor: "rgba(51, 240, 113, 0.61)",
+                        strokeColor: "rgba(11, 246, 88, 0.61)",
+                        highlightFill: "rgba(220,220,220,0.75)",
+                        highlightStroke: "rgba(220,220,220,1)",
+                        data: dataPemasukan
+                    }, {
+                        label: 'Pengeluaran',
+                        fillColor: "rgba(255, 51, 51, 0.8)",
+                        strokeColor: "rgba(248, 5, 5, 0.8)",
+                        highlightFill: "rgba(151,187,205,0.75)",
+                        highlightStroke: "rgba(254, 29, 29, 0)",
+                        data: dataPengeluaran,
+                    }]
+                }
 
-            var ctx = document.getElementById("grafik2").getContext("2d");
-            window.myBar = new Chart(ctx).Bar(barChartData2, {
-                responsive: true,
-                animation: true,
-                barValueSpacing: 5,
-                barDatasetSpacing: 1,
-                tooltipFillColor: "rgba(0,0,0,0.8)",
-                multiTooltipTemplate: "<%= datasetLabel %> - Rp.<%= value.toLocaleString() %>,-"
-            });
+                window.myBar4 = new Chart(ctx).Bar(barChartData4, {
+                    responsive: true,
+                    animation: true,
+                    barValueSpacing: 5,
+                    barDatasetSpacing: 1,
+                    tooltipFillColor: "rgba(0,0,0,0.8)",
+                    multiTooltipTemplate: "<%= datasetLabel %> - Rp.<%= value.toLocaleString() %>,-"
+                });
+            },
+            error: ()=>{
 
-            var ctx = document.getElementById("grafik3").getContext("2d");
-            window.myBar = new Chart(ctx).Bar(barChartData3, {
-                responsive: true,
-                animation: true,
-                barValueSpacing: 5,
-                barDatasetSpacing: 1,
-                tooltipFillColor: "rgba(0,0,0,0.8)",
-                multiTooltipTemplate: "<%= datasetLabel %> - Rp.<%= value.toLocaleString() %>,-"
-            });
+            }
+        })
 
-            var ctx = document.getElementById("grafik4").getContext("2d");
-            window.myBar = new Chart(ctx).Bar(barChartData4, {
-                responsive: true,
-                animation: true,
-                barValueSpacing: 5,
-                barDatasetSpacing: 1,
-                tooltipFillColor: "rgba(0,0,0,0.8)",
-                multiTooltipTemplate: "<%= datasetLabel %> - Rp.<%= value.toLocaleString() %>,-"
-            });
+        $filterJenis.change(() =>{
+            let path = "{{route('data-cateroty-month')}}";
+            if($filterJenis.val() != ""){
+              path += "?tipe=" + $filterJenis.val();
+            }
+            $.ajax({
+                url: path,
+                type: "GET",
+                dataType: "json",
+                success: data => {
+                    myBar4.destroy();
+                    let labels = data.pemasukan.map(item => item.kategori);
+                    let dataPemasukan = data.pemasukan.map(item => item.total);
+                    let dataPengeluaran = data.pengeluaran.map(item => item.total);
 
-        }
-    </script>
+                    var barChartData4 = {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Pemasukan',
+                            fillColor: "rgba(51, 240, 113, 0.61)",
+                            strokeColor: "rgba(11, 246, 88, 0.61)",
+                            highlightFill: "rgba(220,220,220,0.75)",
+                            highlightStroke: "rgba(220,220,220,1)",
+                            data: dataPemasukan
+                        }, {
+                            label: 'Pengeluaran',
+                            fillColor: "rgba(255, 51, 51, 0.8)",
+                            strokeColor: "rgba(248, 5, 5, 0.8)",
+                            highlightFill: "rgba(151,187,205,0.75)",
+                            highlightStroke: "rgba(254, 29, 29, 0)",
+                            data: dataPengeluaran,
+                        }]
+                    }
+
+                    window.myBar4 = new Chart(ctx).Bar(barChartData4, {
+                        responsive: true,
+                        animation: true,
+                        barValueSpacing: 5,
+                        barDatasetSpacing: 1,
+                        tooltipFillColor: "rgba(0,0,0,0.8)",
+                        multiTooltipTemplate: "<%= datasetLabel %> - Rp.<%= value.toLocaleString() %>,-"
+                    });
+                },
+                error: ()=>{
+
+                }
+            })
+        });
+    });
+
+    window.onload = function() {
+        var ctx = document.getElementById("grafik1").getContext("2d");
+        window.myBar = new Chart(ctx).Bar(barChartData, {
+            responsive: true,
+            animation: true,
+            barValueSpacing: 5,
+            barDatasetSpacing: 1,
+            tooltipFillColor: "rgba(0,0,0,0.8)",
+            multiTooltipTemplate: "<%= datasetLabel %> - Rp.<%= value.toLocaleString() %>,-"
+        });
+
+        var ctx = document.getElementById("grafik2").getContext("2d");
+        window.myBar2 = new Chart(ctx).Bar(barChartData2, {
+            responsive: true,
+            animation: true,
+            barValueSpacing: 5,
+            barDatasetSpacing: 1,
+            tooltipFillColor: "rgba(0,0,0,0.8)",
+            multiTooltipTemplate: "<%= datasetLabel %> - Rp.<%= value.toLocaleString() %>,-"
+        });
+
+        var ctx = document.getElementById("grafik3").getContext("2d");
+        window.myBar = new Chart(ctx).Bar(barChartData3, {
+            responsive: true,
+            animation: true,
+            barValueSpacing: 5,
+            barDatasetSpacing: 1,
+            tooltipFillColor: "rgba(0,0,0,0.8)",
+            multiTooltipTemplate: "<%= datasetLabel %> - Rp.<%= value.toLocaleString() %>,-"
+        });
+
+        // var ctx = document.getElementById("grafik4").getContext("2d");
+        // window.myBar = new Chart(ctx).Bar(barChartData4, {
+        //     responsive: true,
+        //     animation: true,
+        //     barValueSpacing: 5,
+        //     barDatasetSpacing: 1,
+        //     tooltipFillColor: "rgba(0,0,0,0.8)",
+        //     multiTooltipTemplate: "<%= datasetLabel %> - Rp.<%= value.toLocaleString() %>,-"
+        // });
+
+    }
+</script>
 @endsection

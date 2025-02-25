@@ -20,8 +20,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Jenis;
 use App\Models\Kelas;
 use App\Models\Siswa;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\FromView;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class HomeController extends Controller
 {
@@ -267,7 +269,9 @@ class HomeController extends Controller
         $transaksi=$transaksi->orderBy('id','desc')->get();
         $kategori = Kategori::orderBy('kategori','asc')->get();
         $jenis = Jenis::all();
-        return view('app.transaksi',compact('transaksi','kategori','jenis'));
+        $kelas = Kelas::all();
+        $siswa = Siswa::all();
+        return view('app.transaksi',compact('transaksi','kategori','jenis','kelas','siswa'));
     }
 
     public function transaksi_aksi(Request $req)
@@ -281,7 +285,7 @@ class HomeController extends Controller
             'kategori_id'=>"required|exists:kategori,id",
             'id_siswa'=>"nullable|exists:siswa,id",
             'nominal'=>'required',
-            'keterangan'=>'nullable',
+            'keterangan'=>'required',
         ]);
 
         $ok = Transaksi::create($req->all());
@@ -291,6 +295,7 @@ class HomeController extends Controller
 
     public function transaksi_update($id, Request $req)
     {
+
         $tanggal = $req->input('tanggal');
         $jenis = $req->input('jenis');
         $kategori = $req->input('kategori');
@@ -298,11 +303,21 @@ class HomeController extends Controller
         $keterangan = $req->input('keterangan');
 
         $transaksi = Transaksi::find($id);
-        $transaksi->tanggal = $tanggal;
-        $transaksi->jenis = $jenis;
-        $transaksi->kategori_id = $kategori;
-        $transaksi->nominal = $nominal;
-        $transaksi->keterangan = $keterangan;
+        if($tanggal != null){
+            $transaksi->tanggal = $tanggal;
+        }
+        if($jenis != null){
+            $transaksi->jenis = $jenis;
+        }
+        if($kategori != null){
+            $transaksi->kategori_id = $kategori;
+        }
+        if($nominal != null){
+            $transaksi->nominal = $nominal;
+        }
+        if($keterangan != null){
+            $transaksi->keterangan = $keterangan;
+        }
         $transaksi->save();
 
         return redirect()->back()->with("success","Transaksi telah diupdate!");
@@ -377,8 +392,6 @@ class HomeController extends Controller
                 ->whereDate('tanggal','<=',$_GET['sampai'])
                 ->get();
             }
-            // $transaksi = Transaksi::orderBy('id','desc')->get();
-            // return view('app.laporan_print',['transaksi' => $transaksi, 'kategori' => $kategori]);
             $pdf = PDF::loadView('app.laporan_pdf', ['transaksi' => $transaksi, 'kategori' => $kategori,'jenis'=>Jenis::all()]);
             return $pdf->download('Laporan Keuangan.pdf');
         }
@@ -510,5 +523,77 @@ class HomeController extends Controller
     {
         $data = Kelas::get();
         return json_encode($data);
+    }
+
+    public function dataCategotyMonth(Request $request){
+        $jenis = Jenis::get();
+        $kategori = Kategori::get();
+        $pemasukan = null;
+        $pengeluaran = null;
+        $bantuan = null;
+        foreach ($jenis as $item) {
+            if (Str::lower($item->tipe) == 'pemasukan') {
+                $pemasukan = $item->id;
+            } elseif (Str::lower($item->tipe) == 'pengeluaran') {
+                $pengeluaran = $item->id;
+            } else {
+                $bantuan = $item->id;
+            }
+        }
+        $totalRevenue = array();
+        $dataPengeluaran = array();
+        $validate= Validator::make($request->all(),["tipe"=>'exists:jenis,id']);
+        if($validate->fails()){
+            return response()->json(['message'=>"Tipe tidak ada"],422);
+        }
+
+        $bln = date('m');
+        if(isset($request->tipe)){
+            foreach ($kategori as $k){
+                $id_kategori = $k->id;
+                if($k->id_tipe == $request->tipe){
+                    $pemasukan_perkategori = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pemasukan)->where('kategori_id', $id_kategori)->whereMonth('tanggal', $bln)->first();
+                    $total = $pemasukan_perkategori->total;
+
+                    if ($pemasukan_perkategori->total == '') {
+                        array_push($totalRevenue, ["kategori"=> $k->kategori,"total"=>0]);
+                    } else {
+                        array_push($totalRevenue, ["kategori"=> $k->kategori,"total"=> $total]);
+                    }
+
+                    $pengeluaran_perkategori = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pengeluaran)->where('kategori_id', $id_kategori)->whereMonth('tanggal', $bln)->first();
+                    $totalPengeluaran = $pengeluaran_perkategori->total;
+                    if ($pengeluaran_perkategori->total == '') {
+                        array_push($dataPengeluaran,["kategori"=>$k->kategori,"total"=>0]);
+                    } else {
+                        array_push($dataPengeluaran,["kategori"=>$k->kategori,"total"=>$totalPengeluaran]);
+                    }
+                }
+            }
+        }else{
+            foreach ($kategori as $k){
+            $id_kategori = $k->id;
+                $pemasukan_perkategori = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pemasukan)->where('kategori_id', $id_kategori)->whereMonth('tanggal', $bln)->first();
+                $total = $pemasukan_perkategori->total;
+
+                if ($pemasukan_perkategori->total == null) {
+                    array_push($totalRevenue, ["kategori"=> $k->kategori,"total"=>0]);
+                    // array_push($totalRevenue, ["kategori"=> $k->kategori,"total"=>'0,']);
+                } else {
+                    array_push($totalRevenue, ["kategori"=> $k->kategori,"total"=>  $total]);
+                }
+
+                $pengeluaran_perkategori = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pengeluaran)->where('kategori_id', $id_kategori)->whereMonth('tanggal', $bln)->first();
+                $totalPengeluaran = $pengeluaran_perkategori->total;
+                if ($pengeluaran_perkategori->total == '') {
+                    array_push($dataPengeluaran,["kategori"=>$k->kategori,"total"=>0]);
+                    // array_push($dataPengeluaran,["kategori"=>$k->kategori,"total"=>'0,']);
+                } else {
+                    array_push($dataPengeluaran,["kategori"=>$k->kategori,"total"=>$totalPengeluaran]);
+                }
+            }
+        }
+        // dd($totals);
+        return response()->json(["pemasukan"=>$totalRevenue,"pengeluaran"=>$dataPengeluaran],200);
     }
 }

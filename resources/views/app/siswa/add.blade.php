@@ -52,6 +52,20 @@
 
                                 <div class="form-group">
                                     <div class="form-group has-feedback">
+                                        <label class="text-dark">NISN</label>
+                                        <input id="nisn" type="text" placeholder="Masukkan NISN siswa"
+                                            class="form-control @error('nisn') is-invalid @enderror"
+                                            name="nisn" value="{{ old('nisn') }}" autocomplete="off">
+                                        @error('nisn')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="form-group has-feedback">
                                         <label class="text-dark">Kelas</label>
                                         <select class="form-control @error('id_kelas') is-invalid @enderror"
                                             name="id_kelas">

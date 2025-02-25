@@ -1,0 +1,90 @@
+div.container {
+    border: 5px black;
+    width: 1000px;
+    margin: 0px auto;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.kw-nav {
+    display: grid;
+    grid-template-columns: 1fr 6fr 1fr;
+    border-bottom: 3px solid black;
+    padding-bottom: 10px;
+}
+
+.kw-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.kw-table-bordered {
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+    height: fit-content;
+}
+.kw-table-bordered th, .kw-table-bordered td {
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+    text-align: center;
+}
+.table-summary {
+    margin-top: 30px;
+}
+
+.kw-table-bordered td .kw-border{
+    border: 0px hidden black;
+}
+
+p {
+    margin-bottom: 0px;
+}
+
+.kw-total {
+    display: grid;
+    grid-template-columns: 467px 1fr;
+    /* display: flex;
+    justify-content: space-between; */
+    width: 100%;
+    /* margin-bottom: 24px; */
+}
+
+.terbilang{
+    width: 920px;
+    font-weight: bold;
+}
+
+.kw-text-bold {
+    font-weight: bold;
+}
+
+.kw-title{
+        padding-top: 1rem;
+}
+
+/* table > tr .text-center */
+.kw-height {
+    min-height: fit-content;
+    height: 160px;
+}
+
+.kw-ttd {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-between;
+}
+
+.kw-catatan {
+    font-style: italic;
+}
+
+.kw-height-terbilang {
+    /* min-height: fit-content;
+    height: 160px; */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-right: 8px;
+}
