@@ -37,8 +37,8 @@
                     <b class="logo-abbr"><img src="{{ asset('gambar/sistem/logo1.png')}}" alt=""> </b>
                     <span class="logo-compact"><img src="{{ asset('gambar/sistem/logo1.png') }}" alt=""></span>
                     <span class="brand-title">
-                        <img src="{{ asset('gambar/sistem/logo1.png')}}" alt="" style="height: 30px">
-                        <span class="text-white ml-2">LARA<b>DUIT</b></span>
+                        <img src="{{ asset('gambar/sistem/logo1.png')}}" alt="" style="height: 35px">
+                        <span class="text-white ml-2">Keuangan</span>
                     </span>
                 </a>
             </div>
@@ -143,6 +143,20 @@
                     </ul>
                 </li>
                 @endif
+                <li class="mega-menu mega-menu-sm">
+                    <a class="has-arrow" href="javascript:void()" aria-expanded="false">
+                        <i class="icon-notebook menu-icon mr-3"></i><span class="nav-text">Dokumen Keuangan</span>
+                    </a>
+                    <ul aria-expanded="false">
+                        <li><a href="{{ route('laporan') }}">Laporan</a></li>
+                        <li><a href="{{ route('kwetansi.index') }}">Kwitansi</a></li>
+                    </ul>
+                </li>
+                {{-- <li>
+                    <a href="{{ route('laporan') }}" aria-expanded="false">
+                        <i class="icon-notebook menu-icon mr-3"></i><span class="nav-text">Laporan</span>
+                    </a>
+                </li> --}}
 
                 <li>
                     <a href="{{ route('transaksi') }}" aria-expanded="false">
@@ -150,11 +164,6 @@
                     </a>
                 </li>
 
-                <li>
-                    <a href="{{ route('laporan') }}" aria-expanded="false">
-                        <i class="icon-notebook menu-icon mr-3"></i><span class="nav-text">Laporan</span>
-                    </a>
-                </li>
 
                 @if(Auth::user()->level == "admin")
 

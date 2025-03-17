@@ -8,7 +8,7 @@
             $pemasukan = $item->id;
         }else if(Str::lower($item->tipe) == "pengeluaran"){
             $pengeluaran = $item->id;
-        }else{
+        }else if(Str::lower($item->tipe) == "bantuan"){
             $bantuan = $item->id;
         }
     }
@@ -171,7 +171,7 @@
                   @endphp
                   @foreach($transaksi as $t)
                   <?php
-                  if($t->jenis == $pemasukan){
+                  if($t->jenis == $pemasukan || $t->jenis == $bantuan){
                     $saldo += $t->nominal;
                   }else{
                     $saldo -= $t->nominal;
@@ -180,10 +180,10 @@
                   <tr>
                     <td class="text-center">{{ $no++ }}</td>
                     <td class="text-center">{{ date('d-m-Y', strtotime($t->tanggal )) }}</td>
-                    <td>{{ $t->kategori->kategori }}</td>
+                    <td>{{ $t->kategori->kategori }} <span class="font-italic"> ( {{ $t->kategori->jenis->tipe }} )</span> </td>
                     <td>{{ $t->keterangan }}</td>
                     <td class="text-center">
-                      @if($t->jenis == $pemasukan)
+                      @if($t->jenis == $pemasukan || $t->jenis == $bantuan)
                       {{ "Rp.".number_format($t->nominal).",-" }}
                       @php $total_pemasukan += $t->nominal; @endphp
                       @else

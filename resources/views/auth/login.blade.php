@@ -27,7 +27,7 @@
             background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
             background-size: 400% 400%;
             animation: gradient 15s ease infinite;
-            transition: all .1s ease; 
+            transition: all .1s ease;
         }
 
 
@@ -60,9 +60,10 @@
                         <div class="card-body pt-5 pb-5">
 
                             <div class="text-center mb-5">
-                                <img src="{{ asset('gambar/sistem/logo1.png')}}" alt="" style="height: 100px"> 
-                                <h3 class=" mt-2">LARA<b>DUIT</b></h3>
-                                <h4 class="mt-4">Sistem Informasi Keuangan <br> Laravel</h4>
+                                <img src="{{ asset('gambar/sistem/logo1.png')}}" alt="" style="height: 100px">
+                                {{-- <h3 class=" mt-2">LARA<b>DUIT</b></h3> --}}
+                                <h3 class=" mt-2"><b>Keuangan Sekolah</b></h3>
+                                <h4 class="mt-4">Sistem Informasi Keuangan <br> Sekolah</h4>
                             </div>
 
                             <h4>Login</h4>

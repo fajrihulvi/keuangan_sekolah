@@ -2,15 +2,17 @@
 $pemasukan = null;
 $pengeluaran = null;
 $bantuan = null;
+
 foreach ($jenis as $item) {
     if (Str::lower($item->tipe) == 'pemasukan') {
         $pemasukan = $item->id;
-    } elseif (Str::lower($item->tipe) == 'pengeluaran') {
+    } else if (Str::lower($item->tipe) == 'pengeluaran') {
         $pengeluaran = $item->id;
-    } else {
+    } else if(Str::lower($item->tipe) == 'bantuan'){
         $bantuan = $item->id;
     }
 }
+
 ?>
 
 @extends('app.master')
@@ -122,13 +124,13 @@ foreach ($jenis as $item) {
 
                                         <div class="form-group">
                                             <label>Nominal</label>
-                                            <input type="text" class="form-control" required="required" name="nominal"
-                                                autocomplete="off" placeholder="Masukkan nominal ..">
+                                            <input type="text" class="form-control nominal" required="required" name="nominal"
+                                                autocomplete="off" placeholder="Masukkan nominal .." >
                                         </div>
 
                                         <div class="form-group">
                                             <label>Keterangan</label>
-                                            <textarea class="form-control" name="keterangan" autocomplete="off" placeholder="Masukkan keterangan (Opsional) .."></textarea>
+                                            <textarea class="form-control" name="keterangan" required placeholder="Masukkan keterangan .."></textarea>
                                         </div>
 
                                     </div>
@@ -230,14 +232,17 @@ foreach ($jenis as $item) {
                                     <?php
                                     if ($t->jenis == $pemasukan) {
                                         $saldo += $t->nominal;
-                                    } else {
+                                    } else if($t->jenis == $bantuan){
+                                        $saldo += $t->nominal;
+                                    }
+                                    else {
                                         $saldo -= $t->nominal;
                                     }
                                     ?>
                                     <tr>
                                         <td class="text-center">{{ $no++ }}</td>
                                         <td class="text-center">{{ date('d-m-Y', strtotime($t->tanggal)) }}</td>
-                                        <td class="text-center">{{ $t->kategori->kategori }}</td>
+                                        <td class="text-center">{{ $t->kategori->kategori }} <span class="font-italic"> ( {{ $t->kategori->jenis->tipe }} )</span></td>
                                         <td class="text-center">
                                             {{ isset($t->siswa->nama_lengkap) ? $t->siswa->nama_lengkap : '-' }}</td>
                                         <td class="text-center">
@@ -245,14 +250,17 @@ foreach ($jenis as $item) {
                                         </td>
                                         <td class="text-center">{{ $t->keterangan }}</td>
                                         <td class="text-center">
-                                            @if ($t->jenis == '1')
+                                            @if ($t->jenis == $pemasukan )
+                                                {{ 'Rp.' . number_format($t->nominal) . ',-' }}
+                                            @elseif ($t->jenis == $bantuan)
                                                 {{ 'Rp.' . number_format($t->nominal) . ',-' }}
                                             @else
-                                                {{ '-' }}
+                                                {{-- {{ '-' }} --}}
+                                                {{ $bantuan }}
                                             @endif
                                         </td>
                                         <td class="text-center">
-                                            @if ($t->jenis == '2')
+                                            @if ($t->jenis == $pengeluaran)
                                                 {{ 'Rp.' . number_format($t->nominal) . ',-' }}
                                             @else
                                                 {{ '-' }}
@@ -304,7 +312,7 @@ foreach ($jenis as $item) {
                                                                     <div class="form-group"
                                                                         style="width: 100%;margin-bottom:20px">
                                                                         <label>Jenis</label>
-                                                                        <select class="form-control py-0 jenis-edit"
+                                                                        <select class="form-control py-0 jenis-edit jenis"
                                                                             required="required" name="jenis"
                                                                             style="width: 100%">
                                                                             <option value="">--- Pilih Jenis ---
@@ -321,62 +329,68 @@ foreach ($jenis as $item) {
                                                                     <div class="form-group"
                                                                         style="width: 100%;margin-bottom:20px">
                                                                         <label>Kategori</label>
-                                                                        <select class="form-control py-0 kategori-edit"
-                                                                            required="required" style="width: 100%">
+                                                                        <select class="form-control py-0 kategori"
+                                                                            required="required" style="width: 100%" name="kategori_id">
                                                                             <option value="">--- Pilih Kategori ---
                                                                             </option>
                                                                             @foreach ($kategori as $k)
                                                                                 <option
-                                                                                    {{ $t->kategori->id == $k->id ? "selected='selected'" : '' }}
+                                                                                    {{ old('kategori_id', $t->kategori->id) == $k->id ? "selected='selected'" : '' }}
                                                                                     value="{{ $k->id }}">
                                                                                     {{ $k->kategori }}</option>
                                                                             @endforeach
                                                                         </select>
                                                                     </div>
 
-                                                                    <div class="form-group" id="kelas">
+                                                                    @isset ($t->siswa)
+
+                                                                    <div class="form-group wrapper-kelas" id="kelas">
                                                                         <label>Kelas</label>
-                                                                        <select class="form-control"name="kelas"
+                                                                        <select class="form-control kelas" name="kelas"
                                                                             style="width: 100%;margin-bottom:20px">
                                                                             <option value="">--- Pilih Kelas ---
                                                                             </option>
-                                                                            @foreach ($kelas as $kelas_item)
-                                                                                <option value="{{ $kelas_item->id }}" >
+                                                                            @foreach($kelas as $kelas_item)
+                                                                                <option value="{{ $kelas_item->id }}" @if ($t->siswa->id_kelas == $kelas_item->id)
+                                                                                    selected
+                                                                                @endif>
                                                                                     {{ $kelas_item->nama_kelas }}
                                                                                 </option>
                                                                             @endforeach
                                                                         </select>
-                                                                        <p>{{ $t->siswa->id_kelas ?? 'Tidak ada kelas' }}
-                                                                        </p>
                                                                     </div>
 
-                                                                    <div class="form-group" id="siswa">
+                                                                    <div class="form-group wrapper-siswa" id="siswa">
                                                                         <label>Siswa</label>
-                                                                        <select class="form-control" name="id_siswa"
+                                                                        <select class="form-control siswa" name="id_siswa"
                                                                             style="width: 100%;margin-bottom:20px">
-                                                                            {{-- @foreach ($siswa as $item)
+                                                                            <option value="">--- Pilih Siswa ---</option>
+                                                                            @foreach ($siswa as $siswa_item)
                                                                                 <option
-                                                                                    {{ $t->siswa->id == $item->id ? "selected='selected'" : '' }}
-                                                                                    value="{{ $item->id }}">
-                                                                                    {{ $item->nama_lengkap }}</option>
-                                                                            @endforeach --}}
+                                                                                    value="{{ $siswa_item->id }}" @if ($siswa_item->id == $t->id_siswa)
+                                                                                        selected
+                                                                                    @endif>
+                                                                                    {{ $siswa_item->nama_lengkap }}</option>
+                                                                            @endforeach
                                                                         </select>
                                                                     </div>
+
+                                                                    @endisset
 
                                                                     <div class="form-group"
                                                                         style="width: 100%;margin-bottom:20px">
                                                                         <label>Nominal</label>
-                                                                        <input type="text" class="form-control py-0"
+                                                                        <input type="text" class="form-control py-0 nominal"
                                                                             required="required" name="nominal"
                                                                             value="{{ $t->nominal }}"
-                                                                            style="width: 100%">
+                                                                            style="width: 100%" >
                                                                     </div>
 
                                                                     <div class="form-group"
                                                                         style="width: 100%;margin-bottom:20px">
                                                                         <label>Keterangan</label>
-                                                                        <textarea class="form-control py-0" name="keterangan" autocomplete="off"
-                                                                            placeholder="Masukkan keterangan (Opsional) .." style="width: 100%">{{ $t->keterangan }}</textarea>
+                                                                        <textarea class="form-control py-0" name="keterangan" autocomplete="off" required
+                                                                            placeholder="Masukkan keterangan .." style="width: 100%">{{ $t->keterangan }}</textarea>
                                                                     </div>
 
 
@@ -496,6 +510,67 @@ foreach ($jenis as $item) {
                 })
             });
 
+            $('.jenis').on("change", () => {
+                jenisKategoriFilter = @json($kategori);
+                jenisKategoriFilter = jenisKategoriFilter.filter(data => data.id_tipe == $('.jenis').val());
+                $('.kategori').empty();
+                $('.jenis').val() == "" ? jenisKategoriFilter = @json($kategori) : '';
+                $('.kategori').append($('<option>', {
+                    value: '',
+                    text: "Semua"
+                }));
+                jenisKategoriFilter.forEach(data => {
+                    $('.kategori').append($('<option>', {
+                        value: data.id,
+                        text: data.kategori
+                    }));
+                })
+            });
+
+            $('.kategori').on("change", function() {
+                $('.wrapper-kelas').hide()
+                $('.wrapper-siswa').hide()
+                const found = kategoriData.find(item => {
+                    return item.id == $('.kategori').val()
+                })
+                if (found.untuk_siswa === "Y") {
+                    $('.wrapper-kelas').show()
+                    $('.kelas').empty()
+                    $.ajax({
+                        url: "{{ route('kelas') }}",
+                        type: "GET",
+                        dataType: "json",
+                        success: data => {
+                            data.forEach(item => {
+                                $('.kelas').append(
+                                    `<option value="${item.id}">${item.nama_kelas}</option>`
+                                )
+                            })
+                        }
+                    })
+                    $('.kelas').on("change", () => {
+                        $('.wrapper-siswa').show();
+                        $('.siswa').empty();
+                        $.ajax({
+                            url: "{{ route('siswa-kelas') }}?kelas=" + $('.kelas').val(),
+                            type: "GET",
+                            dataType: "json",
+                            success: data => {
+                                $('.siswa').append($('<option>',{text:'--- Pilih Siswa ---'}))
+                                data.forEach(item => {
+                                    $('.siswa').append(
+                                        `<option value="${item.id}">${item.nama_lengkap}</option>`
+                                    )
+                                })
+                            }
+                        })
+                    })
+                } else {
+                    $('.wrapper-kelas').hide();
+                    $('.wrapper-siswa').hide();
+                }
+            })
+
             $jenisFilter.on("change", () => {
                 jenisKategoriFilter = @json($kategori);
                 jenisKategoriFilter = jenisKategoriFilter.filter(data => data.id_tipe == $jenisFilter
@@ -582,6 +657,23 @@ foreach ($jenis as $item) {
                 // theme: "bootstrap4",
                 dropdownParent: $('#exampleModal')
             }).addClass("form-control");
+
+            $('.nominal').on('input', function (e) {
+                let bilangan = e.target.value.replace(/[^,\d]/g, '').toString();
+                let split = bilangan.split(',');
+                let sisa = split[0].length % 3;
+                let rupiah = split[0].substr(0, sisa);
+                let ribuan = split[0].substr(sisa).match(/\d{1,3}/gi);
+
+                if (ribuan) {
+                    let separator = sisa ? '.' : '';
+                    rupiah += separator + ribuan.join('.');
+                }
+
+                rupiah = split[1] !== undefined ? rupiah + ',' + split[1] : rupiah;
+
+                $(this).val('Rp. ' + rupiah);
+            });
         })
     </script>
 @endsection

@@ -56,6 +56,14 @@ Route::resource('/siswa',App\Http\Controllers\SiswaController::class)->except('s
 Route::resource('/kelas',App\Http\Controllers\KelasController::class)->except('show');
 Route::resource('/jenis',App\Http\Controllers\JenisController::class)->except('show');
 
+Route::get('/kwetansi', [App\Http\Controllers\KwetansiController::class,"index"])->name("kwetansi.index");
+Route::get('/kwetansi-pdf', [App\Http\Controllers\KwetansiController::class,"pdf"])->name("kwetansi.pdf");
+Route::get('/kwetansi-print', [App\Http\Controllers\KwetansiController::class,"print"])->name("kwetansi.print");
+
 Route::get('/getSiswaInKelas', [App\Http\Controllers\HomeController::class,"getSiswaInKelas"])->name("siswa-kelas");
 Route::get('/getKelas', [App\Http\Controllers\HomeController::class,"getKelas"])->name("kelas");
+Route::get('/dataCategoryMonth', [App\Http\Controllers\HomeController::class,"dataCategotyMonth"])->name('data-cateroty-month');
+
 Route::view('test','test');
+
+route::post('/import-siswa',[App\Http\Controllers\HomeController::class,'importSiswa'])->name('import.siswa');

@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Models\Jenis;
 use App\Models\Siswa;
 use Illuminate\Database\Eloquent\Model;
 
@@ -19,5 +20,9 @@ class Transaksi extends Model
     public function siswa()
     {
         return $this->belongsTo(Siswa::class,'id_siswa');
+    }
+
+    public function jenis(){
+        return $this->belongsTo(Jenis::class,'jenis');
     }
 }

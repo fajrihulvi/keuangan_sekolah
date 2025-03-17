@@ -17,6 +17,9 @@ class Siswa extends Model
         'nama_lengkap',
         'id_kelas',
         'alamat',
+        'nisn',
+        'nohp_orangtua',
+        'nama_orangtua',
     ];
 
     public function kelas()
