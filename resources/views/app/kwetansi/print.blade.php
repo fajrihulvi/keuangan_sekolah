@@ -57,6 +57,7 @@
                 <thead>
                     <tr>
                         <th>No</th>
+                        <th>Tanggal</th>
                         <th>Keterangan Pembayaran</th>
                         <th>Jumlah</th>
                     </tr>
@@ -72,6 +73,8 @@
                     @endphp
                     <tr>
                         <td>{{$no++}}</td>
+                        <td>{{ \Carbon\Carbon::parse($item->updated_at)->format('d-m-Y') }}
+                        </td>
                         <td>{{$item->keterangan}}</td>
                         <td class="d-flex w-100 justify-content-between" style="border: none;outline-offset: 0;border-top: 1px solid black;">
                             <p class="">Rp.</p>
@@ -112,7 +115,8 @@
                                 <td class="text-center">Yang Menerima</td>
                             </tr>
                         </table>
-                        <p class="text-center">Kessyie Arisani, S.Si</p>
+                        {{-- <p class="text-center">Kessyie Arisani, S.Si</p> --}}
+                        <p class="text-center">{{Auth::user()->name}}</p>
                     </div>
                 </div>
             </div>

@@ -6,6 +6,7 @@ use App\Models\Jenis;
 use App\Models\Kelas;
 use App\Models\Siswa;
 use App\Transaksi;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Spatie\LaravelPdf\Facades\Pdf;
@@ -30,7 +31,18 @@ class KwetansiController extends Controller
                     $pemasukan = $item->id;
                 }
             }
-            $data = Transaksi::where('id_siswa', $request->siswa)->where('jenis',$pemasukan)->select('keterangan','nominal')->get();
+
+            if($request->filled(['tanggal']))
+            {
+                $carbonDate = Carbon::create($request->tahun,$request->bulan,$request->tanggal);
+
+                $data = Transaksi::where('id_siswa', $request->siswa)->where('jenis',$pemasukan)->whereMonth('updated_at',$carbonDate->month)->whereYear('updated_at',$carbonDate->year)->whereDay('updated_at',$carbonDate->day)->select('keterangan','nominal','updated_at')->get();
+            } else{
+                $carbonDate = Carbon::create($request->tahun,$request->bulan);
+                $data = Transaksi::where('id_siswa', $request->siswa)->where('jenis',$pemasukan)->whereMonth('updated_at',$carbonDate->month)->whereYear('updated_at',$carbonDate->year)->select('keterangan','nominal','updated_at')->get();
+            }
+
+            // dd($request->bulan,$request->tahun);
             $siswa = Siswa::with('kelas')->where('id',$request->siswa)->select('nama_lengkap','nisn','id_kelas')->first();
 
             return view('app.kwetansi.index', compact('kelas','data','siswa'));
@@ -50,7 +62,18 @@ class KwetansiController extends Controller
                     $pemasukan = $item->id;
                 }
             }
-            $data = Transaksi::where('id_siswa', $request->siswa)->where('jenis',$pemasukan)->select('keterangan','nominal')->get();
+
+            if($request->filled(['tanggal']))
+            {
+                $carbonDate = Carbon::create($request->tahun,$request->bulan,$request->tanggal);
+
+                $data = Transaksi::where('id_siswa', $request->siswa)->where('jenis',$pemasukan)->whereMonth('updated_at',$carbonDate->month)->whereYear('updated_at',$carbonDate->year)->whereDay('updated_at',$carbonDate->day)->select('keterangan','nominal','updated_at')->get();
+            } else{
+                $carbonDate = Carbon::create($request->tahun,$request->bulan);
+                $data = Transaksi::where('id_siswa', $request->siswa)->where('jenis',$pemasukan)->whereMonth('updated_at',$carbonDate->month)->whereYear('updated_at',$carbonDate->year)->select('keterangan','nominal','updated_at')->get();
+            }
+
+            // dd($request->bulan,$request->tahun);
             $siswa = Siswa::with('kelas')->where('id',$request->siswa)->select('nama_lengkap','nisn','id_kelas')->first();
 
             return view('app.kwetansi.print', compact('kelas','data','siswa'));

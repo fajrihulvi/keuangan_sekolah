@@ -6,9 +6,9 @@ $bantuan = null;
 foreach ($jenis as $item) {
     if (Str::lower($item->tipe) == 'pemasukan') {
         $pemasukan = $item->id;
-    } else if (Str::lower($item->tipe) == 'pengeluaran') {
+    } elseif (Str::lower($item->tipe) == 'pengeluaran') {
         $pengeluaran = $item->id;
-    } else if(Str::lower($item->tipe) == 'bantuan'){
+    } elseif (Str::lower($item->tipe) == 'bantuan') {
         $bantuan = $item->id;
     }
 }
@@ -62,88 +62,98 @@ foreach ($jenis as $item) {
                 </div>
                 <div class="card-body pt-0">
 
-                    <!-- Modal -->
-                    <form action="{{ route('transaksi.aksi') }}" method="post">
-                        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
-                            aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="exampleModalLabel">Tambah Transaksi</h5>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
+                    <!-- Tambah Transaksi -->
+                    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
+                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Tambah Transaksi</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
 
+                                <div class="modal-body">
+                                    <form action="{{ route('transaksi.aksi') }}" method="post">
                                         @csrf
 
-                                        <div class="form-group">
-                                            <label>Tanggal</label>
-                                            <input type="text" class="form-control datepicker2" required="required"
-                                                name="tanggal" autocomplete="off" placeholder="Masukkan tanggal ..">
+                                        <div id="transaksi-container">
+                                            <div class="transaksi-item">
+                                                <div class="form-group">
+                                                    <label>Tanggal</label>
+                                                    <input type="text" class="form-control datepicker2"
+                                                        required="required" name="tanggal[]" autocomplete="off"
+                                                        placeholder="Masukkan tanggal ..">
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label>Jenis</label>
+                                                    <select class="form-control jenis" required="required" name="jenis[]">
+                                                        <option value="">--- Pilih Jenis ---</option>
+                                                        @foreach ($jenis as $item)
+                                                            <option value="{{ $item->id }}">{{ $item->tipe }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label>Kategori</label>
+                                                    <select class="form-control js-example-basic-single kategori"
+                                                        required="required" name="kategori_id[]"
+                                                        data-placeholder="--- Pilih Kategori ---">
+                                                        <option></option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="form-group wrapper-kelas" id="kelas">
+                                                    <label>Kelas</label>
+                                                    <select class="form-control js-example-basic-single kelas"
+                                                        name="kelas[]" data-placeholder="--- Pilih Kelas ---">
+                                                        <option value=""></option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="form-group wrapper-siswa" id="siswa">
+                                                    <label>Siswa</label>
+                                                    <select class="form-control js-example-basic-single siswa"
+                                                        name="id_siswa[]" data-placeholder="--- Pilih Siswa ---">
+                                                        <option value=""></option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label>Nominal</label>
+                                                    <input type="text" class="form-control nominal" required="required"
+                                                        name="nominal[]" autocomplete="off"
+                                                        placeholder="Masukkan nominal ..">
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label>Keterangan</label>
+                                                    <textarea class="form-control" name="keterangan[]" required placeholder="Masukkan keterangan .."></textarea>
+                                                </div>
+
+                                                <button type="button" class="btn btn-danger remove-input">
+                                                    <i class="fa fa-trash"></i> Hapus
+                                                </button>
+
+                                                <hr>
+                                            </div>
                                         </div>
 
-                                        <div class="form-group">
-                                            <label>Jenis</label>
-                                            <select class="form-control" required="required" name="jenis" id="jenis">
-                                                <option value="">--- Pilih Jenis ---</option>
-                                                @foreach ($jenis as $item)
-                                                    <option value="{{ $item->id }}">{{ $item->tipe }}</option>
-                                                @endforeach
-                                                {{-- <option value="{{ $pengeluaran }}">Pengeluaran</option> --}}
-                                            </select>
-                                        </div>
+                                        <button type="button" id="tambahInput" class="btn btn-success">
+                                            <i class="fa fa-plus"></i> Tambah Transaksi Baru
+                                        </button>
 
-                                        <div class="form-group">
-                                            <label>Kategori</label>
-                                            <select class="form-control js-example-basic-single" required="required"
-                                                name="kategori_id" id="kategori" data-placeholder="--- Pilih Kategori ---">
-                                                <option></option>
-                                                {{-- @foreach ($kategori as $k)
-                                                    <option value="{{ $k->id }}">{{ $k->kategori }}</option>
-                                                @endforeach --}}
-                                            </select>
-                                        </div>
-
-                                        <div class="form-group" id="kelas">
-                                            <label>Kelas</label>
-                                            <select class="form-control js-example-basic-single" name="kelas"
-                                                id="kelas-select" data-placeholder="--- Pilih Kelas ---">
-                                                <option value=""></option>
-                                            </select>
-                                        </div>
-
-                                        <div class="form-group" id="siswa">
-                                            <label>Siswa</label>
-                                            <select class="form-control js-example-basic-single" name="id_siswa"
-                                                id="siswa-select" data-placeholder="--- Pilih Siswa ---">
-                                                <option value=""></option>
-                                            </select>
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label>Nominal</label>
-                                            <input type="text" class="form-control nominal" required="required" name="nominal"
-                                                autocomplete="off" placeholder="Masukkan nominal .." >
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label>Keterangan</label>
-                                            <textarea class="form-control" name="keterangan" required placeholder="Masukkan keterangan .."></textarea>
-                                        </div>
-
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-default" data-dismiss="modal"><i
-                                                class="ti-close m-r-5 f-s-12"></i> Tutup</button>
-                                        <button type="submit" class="btn btn-primary"><i
-                                                class="fa fa-paper-plane m-r-5"></i> Simpan</button>
-                                    </div>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fa fa-paper-plane"></i> Simpan
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
-                    </form>
+                    </div>
                     <form action="{{ route('transaksi') }}" method="GET" class="mb-4">
                         <div class="d-flex align-items-center justify-content-between">
                             <div class="row">
@@ -232,17 +242,17 @@ foreach ($jenis as $item) {
                                     <?php
                                     if ($t->jenis == $pemasukan) {
                                         $saldo += $t->nominal;
-                                    } else if($t->jenis == $bantuan){
+                                    } elseif ($t->jenis == $bantuan) {
                                         $saldo += $t->nominal;
-                                    }
-                                    else {
+                                    } else {
                                         $saldo -= $t->nominal;
                                     }
                                     ?>
                                     <tr>
                                         <td class="text-center">{{ $no++ }}</td>
                                         <td class="text-center">{{ date('d-m-Y', strtotime($t->tanggal)) }}</td>
-                                        <td class="text-center">{{ $t->kategori->kategori }} <span class="font-italic"> ( {{ $t->kategori->jenis->tipe }} )</span></td>
+                                        <td class="text-center">{{ $t->kategori->kategori }} <span class="font-italic"> (
+                                                {{ $t->kategori->jenis->tipe }} )</span></td>
                                         <td class="text-center">
                                             {{ isset($t->siswa->nama_lengkap) ? $t->siswa->nama_lengkap : '-' }}</td>
                                         <td class="text-center">
@@ -250,7 +260,7 @@ foreach ($jenis as $item) {
                                         </td>
                                         <td class="text-center">{{ $t->keterangan }}</td>
                                         <td class="text-center">
-                                            @if ($t->jenis == $pemasukan )
+                                            @if ($t->jenis == $pemasukan)
                                                 {{ 'Rp.' . number_format($t->nominal) . ',-' }}
                                             @elseif ($t->jenis == $bantuan)
                                                 {{ 'Rp.' . number_format($t->nominal) . ',-' }}
@@ -279,7 +289,7 @@ foreach ($jenis as $item) {
                                                             class="fa fa-trash"></i></button>
                                                 </div>
                                                 <!-- Modal -->
-                                                {{-- Edit Kategori --}}
+                                                {{-- Edit Transaksi --}}
                                                 <form method="POST"
                                                     action="{{ route('transaksi.update', ['id' => $t->id]) }}">
                                                     <div class="modal fade" id="modalEdit_{{ $t->id }}"
@@ -299,101 +309,101 @@ foreach ($jenis as $item) {
                                                                     @csrf
                                                                     {{ method_field('PUT') }}
 
-                                                                    <div class="form-group"
-                                                                        style="width: 100%;margin-bottom:20px">
-                                                                        <label>Tanggal</label>
-                                                                        <input type="text"
-                                                                            class="form-control datepicker2 py-0"
-                                                                            required="required" name="tanggal"
-                                                                            value="{{ $t->tanggal }}"
-                                                                            style="width: 100%">
-                                                                    </div>
-
-                                                                    <div class="form-group"
-                                                                        style="width: 100%;margin-bottom:20px">
-                                                                        <label>Jenis</label>
-                                                                        <select class="form-control py-0 jenis-edit jenis"
-                                                                            required="required" name="jenis"
-                                                                            style="width: 100%">
-                                                                            <option value="">--- Pilih Jenis ---
-                                                                            </option>
-                                                                            @foreach ($jenis as $item)
-                                                                                <option
-                                                                                    {{ $item->id == $t->jenis ? "selected='selected'" : '' }}
-                                                                                    value="{{ $item->id }}">
-                                                                                    {{ $item->tipe }}</option>
-                                                                            @endforeach
-                                                                        </select>
-                                                                    </div>
-
-                                                                    <div class="form-group"
-                                                                        style="width: 100%;margin-bottom:20px">
-                                                                        <label>Kategori</label>
-                                                                        <select class="form-control py-0 kategori"
-                                                                            required="required" style="width: 100%" name="kategori_id">
-                                                                            <option value="">--- Pilih Kategori ---
-                                                                            </option>
-                                                                            @foreach ($kategori as $k)
-                                                                                <option
-                                                                                    {{ old('kategori_id', $t->kategori->id) == $k->id ? "selected='selected'" : '' }}
-                                                                                    value="{{ $k->id }}">
-                                                                                    {{ $k->kategori }}</option>
-                                                                            @endforeach
-                                                                        </select>
-                                                                    </div>
-
-                                                                    @isset ($t->siswa)
-
-                                                                    <div class="form-group wrapper-kelas" id="kelas">
-                                                                        <label>Kelas</label>
-                                                                        <select class="form-control kelas" name="kelas"
+                                                                    <div class="transaksi-item">
+                                                                        <div class="form-group"
                                                                             style="width: 100%;margin-bottom:20px">
-                                                                            <option value="">--- Pilih Kelas ---
-                                                                            </option>
-                                                                            @foreach($kelas as $kelas_item)
-                                                                                <option value="{{ $kelas_item->id }}" @if ($t->siswa->id_kelas == $kelas_item->id)
-                                                                                    selected
-                                                                                @endif>
-                                                                                    {{ $kelas_item->nama_kelas }}
+                                                                            <label>Tanggal</label>
+                                                                            <input type="text"
+                                                                                class="form-control datepicker2 py-0"
+                                                                                required="required" name="tanggal"
+                                                                                value="{{ $t->tanggal }}"
+                                                                                style="width: 100%">
+                                                                        </div>
+
+                                                                        <div class="form-group"
+                                                                            style="width: 100%;margin-bottom:20px">
+                                                                            <label>Jenis</label>
+                                                                            <select
+                                                                                class="form-control py-0 jenis-edit jenis"
+                                                                                required="required" name="jenis"
+                                                                                style="width: 100%">
+                                                                                <option value="">--- Pilih Jenis ---
                                                                                 </option>
-                                                                            @endforeach
-                                                                        </select>
-                                                                    </div>
+                                                                                @foreach ($jenis as $item)
+                                                                                    <option
+                                                                                        {{ $item->id == $t->jenis ? "selected='selected'" : '' }}
+                                                                                        value="{{ $item->id }}">
+                                                                                        {{ $item->tipe }}</option>
+                                                                                @endforeach
+                                                                            </select>
+                                                                        </div>
 
-                                                                    <div class="form-group wrapper-siswa" id="siswa">
-                                                                        <label>Siswa</label>
-                                                                        <select class="form-control siswa" name="id_siswa"
+                                                                        <div class="form-group"
                                                                             style="width: 100%;margin-bottom:20px">
-                                                                            <option value="">--- Pilih Siswa ---</option>
-                                                                            @foreach ($siswa as $siswa_item)
-                                                                                <option
-                                                                                    value="{{ $siswa_item->id }}" @if ($siswa_item->id == $t->id_siswa)
-                                                                                        selected
-                                                                                    @endif>
-                                                                                    {{ $siswa_item->nama_lengkap }}</option>
-                                                                            @endforeach
-                                                                        </select>
+                                                                            <label>Kategori</label>
+                                                                            <select
+                                                                                class="form-control py-0 js-example-basic-single kategori"
+                                                                                required="required" style="width: 100%"
+                                                                                name="kategori_id">
+                                                                                <option value="">--- Pilih Kategori
+                                                                                    ---
+                                                                                </option>
+                                                                                @foreach ($kategori as $k)
+                                                                                    <option
+                                                                                        {{ old('kategori_id', $t->kategori->id) == $k->id ? "selected='selected'" : '' }}
+                                                                                        value="{{ $k->id }}">
+                                                                                        {{ $k->kategori }}</option>
+                                                                                @endforeach
+                                                                            </select>
+                                                                        </div>
+
+                                                                        @isset($t->siswa)
+                                                                            <div class="form-group wrapper-kelas"
+                                                                                id="kelas" style="width: 100%;margin-bottom:20px">
+                                                                                <label>Kelas</label>
+                                                                                <select class="form-control kelas"
+                                                                                    name="kelas"
+                                                                                    style="width: 100%;margin-bottom:20px">
+                                                                                    <option value="">--- Pilih Kelas ---
+                                                                                    </option>
+                                                                                    @foreach ($kelas as $kelas_item)
+                                                                                        <option value="{{ $kelas_item->id }}"
+                                                                                            @if ($t->siswa->id_kelas == $kelas_item->id) selected @endif>
+                                                                                            {{ $kelas_item->nama_kelas }}
+                                                                                        </option>
+                                                                                    @endforeach
+                                                                                </select>
+                                                                            </div>
+
+                                                                            <div class="form-group wrapper-siswa"
+                                                                                id="siswa">
+                                                                                <label>Siswa</label>
+                                                                                <select class="form-control siswa"
+                                                                                    name="id_siswa"
+                                                                                    style="width: 100%;margin-bottom:20px">
+                                                                                    <option value="">--- Pilih Siswa ---
+                                                                                    </option>
+                                                                                </select>
+                                                                            </div>
+                                                                        @endisset
+
+                                                                        <div class="form-group"
+                                                                            style="width: 100%;margin-bottom:20px">
+                                                                            <label>Nominal</label>
+                                                                            <input type="text"
+                                                                                class="form-control py-0 nominal"
+                                                                                required="required" name="nominal"
+                                                                                value="{{ $t->nominal }}"
+                                                                                style="width: 100%">
+                                                                        </div>
+
+                                                                        <div class="form-group"
+                                                                            style="width: 100%;margin-bottom:20px">
+                                                                            <label>Keterangan</label>
+                                                                            <textarea class="form-control py-0" name="keterangan" autocomplete="off" required
+                                                                                placeholder="Masukkan keterangan .." style="width: 100%">{{ $t->keterangan }}</textarea>
+                                                                        </div>
                                                                     </div>
-
-                                                                    @endisset
-
-                                                                    <div class="form-group"
-                                                                        style="width: 100%;margin-bottom:20px">
-                                                                        <label>Nominal</label>
-                                                                        <input type="text" class="form-control py-0 nominal"
-                                                                            required="required" name="nominal"
-                                                                            value="{{ $t->nominal }}"
-                                                                            style="width: 100%" >
-                                                                    </div>
-
-                                                                    <div class="form-group"
-                                                                        style="width: 100%;margin-bottom:20px">
-                                                                        <label>Keterangan</label>
-                                                                        <textarea class="form-control py-0" name="keterangan" autocomplete="off" required
-                                                                            placeholder="Masukkan keterangan .." style="width: 100%">{{ $t->keterangan }}</textarea>
-                                                                    </div>
-
-
                                                                 </div>
                                                                 <div class="modal-footer">
                                                                     <button type="button" class="btn btn-default"
@@ -471,209 +481,144 @@ foreach ($jenis as $item) {
             const $kategori = $("#kategori");
             const $jenisFilter = $("#filter-jenis");
             const $kategoriFilter = $("#kategori-filter");
-            const $kategoriEdit = $("#kategori-edit");
             const kelas = $("#kelas");
             const siswa = $("#siswa");
-            const siswaSelect = $("#siswa-select");
-            const kelasSelect = $("#kelas-select");
-            let kategoriData = @json($kategori);
-            let jenisKategoriFilter = @json($kategori);
+            const kategoriData = @json($kategori);
+
+            $('.wrapper-siswa').hide();
+            $('#exampleModal').find('.wrapper-kelas').hide();
 
             kategoriData.forEach(data => {
-                $kategori.append($('<option>', {
-                    value: data.id,
-                    text: data.kategori
-                }))
-                $kategoriFilter.append($('<option>', {
-                    value: data.id,
-                    text: data.kategori
-                }))
-            })
+                $kategori.append(new Option(data.kategori, data.id));
+                $kategoriFilter.append(new Option(data.kategori, data.id));
+            });
 
-            $('#jenis').on("change", () => {
-                console.log('test')
-                kategoriData = @json($kategori);
-                kategoriData = kategoriData.filter(data => {
-                    return data.id_tipe == $('#jenis').val();
+            $(document).on("change", ".jenis", function() {
+                let parent = $(this).closest(".transaksi-item");
+                let jenisVal = $(this).val();
+                parent.find(".wrapper-kelas, .wrapper-siswa").hide();
+                parent.find(".kategori").val("").change();
+                parent.find(".kelas").empty().append(new Option('--- Pilih Kelas ---'));
+                parent.find(".siswa").empty().append(new Option('--- Pilih Siswa ---'));
+
+                let kategoriFiltered = kategoriData.filter(item => item.id_tipe == jenisVal);
+                parent.find(".kategori").empty().append(new Option('--- Pilih Kategori ---'));
+
+                kategoriFiltered.forEach(item => {
+                    parent.find(".kategori").append(new Option(item.kategori, item.id));
                 });
-                $kategori.empty();
-                $kategori.append($('<option>', {
-                    value: '',
-                    text: "--- Pilih Kategori ---"
-                }))
-                $('#jenis').val() == "" ? kategoriData = @json($kategori) : '';
-                kategoriData.forEach(data => {
-                    $kategori.append($('<option>', {
-                        value: data.id,
-                        text: data.kategori
-                    }))
-                })
             });
 
-            $('.jenis').on("change", () => {
-                jenisKategoriFilter = @json($kategori);
-                jenisKategoriFilter = jenisKategoriFilter.filter(data => data.id_tipe == $('.jenis').val());
-                $('.kategori').empty();
-                $('.jenis').val() == "" ? jenisKategoriFilter = @json($kategori) : '';
-                $('.kategori').append($('<option>', {
-                    value: '',
-                    text: "Semua"
-                }));
-                jenisKategoriFilter.forEach(data => {
-                    $('.kategori').append($('<option>', {
-                        value: data.id,
-                        text: data.kategori
-                    }));
-                })
-            });
 
-            $('.kategori').on("change", function() {
-                $('.wrapper-kelas').hide()
-                $('.wrapper-siswa').hide()
-                const found = kategoriData.find(item => {
-                    return item.id == $('.kategori').val()
-                })
-                if (found.untuk_siswa === "Y") {
-                    $('.wrapper-kelas').show()
-                    $('.kelas').empty()
+            $(document).on("change", ".kategori", function() {
+                let parent = $(this).closest(".transaksi-item"); 
+                let kategoriVal = $(this).val();
+
+                parent.find(".wrapper-kelas, .wrapper-siswa").hide();
+                parent.find(".kelas").empty().append(new Option('--- Pilih Kelas ---'));
+                parent.find(".siswa").empty().append(new Option('--- Pilih Siswa ---'));
+
+                const found = kategoriData.find(item => item.id == kategoriVal);
+                if (found && found.untuk_siswa === "Y") {
+                    parent.find(".wrapper-kelas").show();
+
                     $.ajax({
                         url: "{{ route('kelas') }}",
                         type: "GET",
                         dataType: "json",
                         success: data => {
                             data.forEach(item => {
-                                $('.kelas').append(
-                                    `<option value="${item.id}">${item.nama_kelas}</option>`
-                                )
-                            })
+                                parent.find(".kelas").append( new Option(item.nama_kelas,item.id)
+                                );
+                            });
                         }
-                    })
-                    $('.kelas').on("change", () => {
-                        $('.wrapper-siswa').show();
-                        $('.siswa').empty();
-                        $.ajax({
-                            url: "{{ route('siswa-kelas') }}?kelas=" + $('.kelas').val(),
-                            type: "GET",
-                            dataType: "json",
-                            success: data => {
-                                $('.siswa').append($('<option>',{text:'--- Pilih Siswa ---'}))
-                                data.forEach(item => {
-                                    $('.siswa').append(
-                                        `<option value="${item.id}">${item.nama_lengkap}</option>`
-                                    )
-                                })
-                            }
-                        })
-                    })
-                } else {
-                    $('.wrapper-kelas').hide();
-                    $('.wrapper-siswa').hide();
+                    });
                 }
-            })
+            });
 
-            $jenisFilter.on("change", () => {
-                jenisKategoriFilter = @json($kategori);
-                jenisKategoriFilter = jenisKategoriFilter.filter(data => data.id_tipe == $jenisFilter
-                    .val());
-                $kategoriFilter.empty();
-                $jenisFilter.val() == "" ? jenisKategoriFilter = @json($kategori) : '';
-                $kategoriFilter.append($('<option>', {
-                    value: '',
-                    text: "Semua"
-                }));
-                jenisKategoriFilter.forEach(data => {
-                    $kategoriFilter.append($('<option>', {
-                        value: data.id,
-                        text: data.kategori
-                    }));
-                })
-            })
+            $(document).on("change", ".kelas", function() {
+                let parent = $(this).closest(".transaksi-item"); 
+                let kelasVal = $(this).val();
 
-            kelas.hide()
-            siswa.hide()
-            $kategori.on("change", function() {
-                kelas.hide()
-                siswa.hide()
-                const found = kategoriData.find(item => {
-                    return item.id == $kategori.val()
-                })
-                if (found.untuk_siswa === "Y") {
-                    kelas.show()
+                parent.find(".wrapper-siswa").hide();
+                parent.find(".siswa").empty().append(new Option('--- Pilih Siswa ---'));
+
+                if (kelasVal) {
+                    parent.find(".wrapper-siswa").show();
+
                     $.ajax({
-                        url: "{{ route('kelas') }}",
+                        url: "{{ route('siswa-kelas') }}?kelas=" + kelasVal,
                         type: "GET",
                         dataType: "json",
                         success: data => {
                             data.forEach(item => {
-                                kelasSelect.append(
-                                    `<option value="${item.id}">${item.nama_kelas}</option>`
-                                )
-                            })
+                                parent.find(".siswa").append(new Option(item.nama_lengkap,item.id));
+                            });
                         }
-                    })
-                    kelas.on("change", () => {
-                        siswa.show();
-                        siswaSelect.empty();
-                        $.ajax({
-                            url: "{{ route('siswa-kelas') }}?kelas=" + kelasSelect.val(),
-                            type: "GET",
-                            dataType: "json",
-                            success: data => {
-                                siswaSelect.append($('<option>'))
-                                data.forEach(item => {
-                                    siswaSelect.append(
-                                        `<option value="${item.id}">${item.nama_lengkap}</option>`
-                                    )
-                                })
-                            }
-                        })
-                    })
-                } else {
-                    kelas.hide();
-                    siswa.hide();
+                    });
                 }
-            })
+            });
 
-            $('.js-example-basic-single').select2({
-                width: '100%',
-                placeholder: 'Pilih Opsi',
-                allowClear: true,
-                dropdownParent: $('#exampleModal'),
-                // theme: "bootstrap4",
-                minimumResultsForSearch: Infinity,
-            }).addClass("form-control");
 
-            $('#kelas-select').select2({
-                width: '100%',
-                placeholder: '--- Pilih Kelas ---',
-                allowClear: true,
-                dropdownParent: $('#exampleModal')
-            }).addClass("form-control");
-
-            $('#siswa-select').select2({
-                width: '100%',
-                placeholder: '--- Pilih Siswa ---',
-                allowClear: true,
-                // theme: "bootstrap4",
-                dropdownParent: $('#exampleModal')
-            }).addClass("form-control");
-
-            $('.nominal').on('input', function (e) {
+            $(document).on("input", ".nominal", function(e) {
                 let bilangan = e.target.value.replace(/[^,\d]/g, '').toString();
                 let split = bilangan.split(',');
                 let sisa = split[0].length % 3;
                 let rupiah = split[0].substr(0, sisa);
                 let ribuan = split[0].substr(sisa).match(/\d{1,3}/gi);
-
-                if (ribuan) {
-                    let separator = sisa ? '.' : '';
-                    rupiah += separator + ribuan.join('.');
-                }
-
-                rupiah = split[1] !== undefined ? rupiah + ',' + split[1] : rupiah;
-
-                $(this).val('Rp. ' + rupiah);
+                if (ribuan) rupiah += (sisa ? '.' : '') + ribuan.join('.');
+                $(this).val('Rp. ' + (split[1] !== undefined ? rupiah + ',' + split[1] : rupiah));
             });
-        })
+
+            $("#tambahInput").click(function() {
+                let newInput = $(".transaksi-item:first").clone();
+
+                newInput.find("input, select, textarea").val("");
+                newInput.find(".datepicker2").removeClass("hasDatepicker").removeAttr("id");
+                newInput.find(".select2").remove();
+                newInput.find("select").removeClass("select2-hidden-accessible").removeAttr(
+                    "data-select2-id").removeAttr("aria-hidden");
+
+                let uniqueId = "select2-" + Date.now();
+                newInput.find("select").attr("id", uniqueId);
+
+                $("#transaksi-container").append(newInput);
+                newInput.find(".datepicker2").datepicker({
+                    format: 'yyyy-mm-dd',
+                    autoclose: true
+                });
+
+                newInput.find("select").select2({
+                    placeholder: "--- Pilih ---",
+                    width: "100%"
+                });
+            });
+
+
+            $(document).on("click", ".remove-input", function() {
+                if ($(".transaksi-item").length > 1) $(this).closest(".transaksi-item").remove();
+                else alert("Minimal harus ada satu transaksi!");
+            });
+
+            $('#exampleModal').on('show.bs.modal', function (){
+                $(".js-example-basic-single, .kelas, .siswa").select2({
+                    width: "100%",
+                    placeholder: "--- Pilih Opsi ---",
+                    allowClear: true,
+                    dropdownParent: $(this)
+                });
+            })
+
+            $('[id^=modalEdit_]').on('shown.bs.modal', function () {
+                var modalId = $(this).attr('id');
+                console.info(modalId);
+                $("#" + modalId + " .js-example-basic-single, #" + modalId + " .kelas, #" + modalId + " .siswa").select2({
+                    width: "100%",
+                    placeholder: "--- Pilih Opsi ---",
+                    allowClear: true,
+                    dropdownParent: $("#" + modalId)
+                });
+            });
+        });
     </script>
 @endsection

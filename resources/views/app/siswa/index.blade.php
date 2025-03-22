@@ -64,7 +64,7 @@
                                         <button type="button" class="btn btn-default" data-dismiss="modal"><i
                                                 class="ti-close m-r-5 f-s-12"></i> Tutup</button>
                                         <button type="submit" class="btn btn-primary"><i
-                                                class="fa fa-paper-plane m-r-5"></i> Simpan</button>
+                                                class="fa fa-paper-plane m-r-5"></i> Import</button>
                                     </div>
                                 </div>
                             </div>

@@ -46,7 +46,6 @@ class HomeController extends Controller
     public function index()
     {
         $kategori = Kategori::all();
-        $transaksi = Transaksi::all();
         $tanggal = date('Y-m-d');
         $bulan = date('m');
         $tahun = date('Y');
@@ -140,7 +139,6 @@ class HomeController extends Controller
             $kategori_filter = Kategori::where('id_tipe',$_GET['kategori'])->get();
             if(!$kategori_filter) $kategori_filter = $kategori;
         }
-
         return view('app.index',
             [
                 'pemasukan_hari_ini' => $pemasukan_hari_ini,
@@ -156,7 +154,6 @@ class HomeController extends Controller
                 'bantuan_tahun_ini' => $bantuan_tahun_ini,
                 'seluruh_bantuan' => $seluruh_bantuan,
                 'kategori' => $kategori,
-                'transaksi' => $transaksi,
                 'jenis' => $jenis,
                 'kategori_filter'=>$kategori_filter
             ]
@@ -265,18 +262,18 @@ class HomeController extends Controller
         {
             $transaksi->whereYear('created_at',$request->tahun);
         }
-        // dd($transaksi->orderBy('id','desc')->get());
-        // $transaksi->with(['siswa', 'kategori', 'siswa.kelas'])->get();
+
         $transaksi=$transaksi->orderBy('id','desc')->get();
         $kategori = Kategori::orderBy('kategori','asc')->get();
         $jenis = Jenis::all();
         $kelas = Kelas::all();
-        $siswa = Siswa::all();
-        return view('app.transaksi',compact('transaksi','kategori','jenis','kelas','siswa'));
+        // $siswa = Siswa::all();
+        return view('app.transaksi',compact('transaksi','kategori','jenis','kelas'));
     }
 
     public function transaksi_aksi(Request $req)
     {
+        dd($req->all());
         $req->merge([
             'nominal' => preg_replace('/\D/', '', $req->nominal)
         ]);
