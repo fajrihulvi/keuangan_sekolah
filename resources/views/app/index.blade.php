@@ -1,7 +1,5 @@
 <?php
 
-use App\Transaksi;
-
 $pemasukan = null;
 $pengeluaran = null;
 $bantuan = null;
@@ -15,6 +13,7 @@ foreach ($jenis as $item) {
     }
 }
 ?>
+
 
 @extends('app.master')
 
@@ -36,7 +35,6 @@ foreach ($jenis as $item) {
                 <div class="col-lg-4 col-sm-12">
                     <div class="card gradient-7">
                         <div class="card-body">
-
                             <h3 class="card-title text-white">Pilih Durasi Tanggal</h3>
                             <form method="get" action="">
                                 <select class="form-control" name="session" onchange="this.form.submit()">
@@ -359,97 +357,98 @@ foreach ($jenis as $item) {
       ?>
             </div>
             <div class="row">
+                <!-- Tambah Transaksi -->
                 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
-                    aria-labelledby="exampleModalLabel" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="exampleModalLabel">Tambah Transaksi</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
+                aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Tambah Transaksi</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
 
-                            <div class="modal-body">
-                                <form action="{{ route('transaksi.aksi') }}" method="post">
-                                    @csrf
+                        <div class="modal-body">
+                            <form action="{{ route('transaksi.aksi') }}" method="post">
+                                @csrf
 
-                                    <div id="transaksi-container">
-                                        <div class="transaksi-item">
-                                            <div class="form-group">
-                                                <label>Tanggal</label>
-                                                <input type="text" class="form-control datepicker2"
-                                                    required="required" name="tanggal[]" autocomplete="off"
-                                                    placeholder="Masukkan tanggal ..">
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label>Jenis</label>
-                                                <select class="form-control jenis" required="required" name="jenis[]">
-                                                    <option value="">--- Pilih Jenis ---</option>
-                                                    @foreach ($jenis as $item)
-                                                        <option value="{{ $item->id }}">{{ $item->tipe }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label>Kategori</label>
-                                                <select class="form-control js-example-basic-single kategori"
-                                                    required="required" name="kategori_id[]"
-                                                    data-placeholder="--- Pilih Kategori ---">
-                                                    <option></option>
-                                                </select>
-                                            </div>
-
-                                            <div class="form-group wrapper-kelas" id="kelas">
-                                                <label>Kelas</label>
-                                                <select class="form-control js-example-basic-single kelas" name="kelas[]"
-                                                    data-placeholder="--- Pilih Kelas ---">
-                                                    <option value=""></option>
-                                                </select>
-                                            </div>
-
-                                            <div class="form-group wrapper-siswa" id="siswa">
-                                                <label>Siswa</label>
-                                                <select class="form-control js-example-basic-single siswa"
-                                                    name="id_siswa[]" data-placeholder="--- Pilih Siswa ---">
-                                                    <option value=""></option>
-                                                </select>
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label>Nominal</label>
-                                                <input type="text" class="form-control nominal" required="required"
-                                                    name="nominal[]" autocomplete="off"
-                                                    placeholder="Masukkan nominal ..">
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label>Keterangan</label>
-                                                <textarea class="form-control" name="keterangan[]" required placeholder="Masukkan keterangan .."></textarea>
-                                            </div>
-
-                                            <button type="button" class="btn btn-danger remove-input">
-                                                <i class="fa fa-trash"></i> Hapus
-                                            </button>
-
-                                            <hr>
+                                <div id="transaksi-container">
+                                    <div class="transaksi-item">
+                                        <div class="form-group">
+                                            <label>Tanggal</label>
+                                            <input type="text" class="form-control datepicker2"
+                                                required="required" name="tanggal[]" autocomplete="off"
+                                                placeholder="Masukkan tanggal ..">
                                         </div>
+
+                                        <div class="form-group">
+                                            <label>Jenis</label>
+                                            <select class="form-control jenis" required="required" name="jenis[]">
+                                                <option value="">--- Pilih Jenis ---</option>
+                                                @foreach ($jenis as $item)
+                                                    <option value="{{ $item->id }}">{{ $item->tipe }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Kategori</label>
+                                            <select class="form-control js-example-basic-single kategori"
+                                                required="required" name="kategori_id[]"
+                                                data-placeholder="--- Pilih Kategori ---">
+                                                <option></option>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group wrapper-kelas" id="kelas">
+                                            <label>Kelas</label>
+                                            <select class="form-control js-example-basic-single kelas"
+                                                name="kelas[]" data-placeholder="--- Pilih Kelas ---">
+                                                <option value=""></option>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group wrapper-siswa" id="siswa">
+                                            <label>Siswa</label>
+                                            <select class="form-control js-example-basic-single siswa"
+                                                name="id_siswa[]" data-placeholder="--- Pilih Siswa ---">
+                                                <option value=""></option>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Nominal</label>
+                                            <input type="text" class="form-control nominal" required="required"
+                                                name="nominal[]" autocomplete="off"
+                                                placeholder="Masukkan nominal ..">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Keterangan</label>
+                                            <textarea class="form-control" name="keterangan[]" required placeholder="Masukkan keterangan .."></textarea>
+                                        </div>
+
+                                        <button type="button" class="btn btn-danger remove-input">
+                                            <i class="fa fa-trash"></i> Hapus
+                                        </button>
+
+                                        <hr>
                                     </div>
+                                </div>
 
-                                    <button type="button" id="tambahInput" class="btn btn-success">
-                                        <i class="fa fa-plus"></i> Tambah Transaksi Baru
-                                    </button>
+                                <button type="button" id="tambahInput" class="btn btn-success">
+                                    <i class="fa fa-plus"></i> Tambah Transaksi Baru
+                                </button>
 
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fa fa-paper-plane"></i> Simpan
-                                    </button>
-                                </form>
-                            </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa fa-paper-plane"></i> Simpan
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
+            </div>
                 <style type="text/css">
                     .card-grafik canvas {
                         width: 100% !important;
@@ -587,8 +586,8 @@ foreach ($jenis as $item) {
             foreach($thn2 as $t){
         ?> "<?php echo $t->tahun; ?>",
                 <?php
-                }
-            ?>
+  }
+  ?>
             ],
             datasets: [{
                     label: 'Pemasukan',
@@ -640,7 +639,7 @@ foreach ($jenis as $item) {
             <?php
             $dateBegin = strtotime('first day of this month');
             $dateEnd = strtotime('last day of this month');
-            
+
             $awal = date('Y-m-d', $dateBegin);
             $akhir = date('Y-m-d', $dateEnd);
             ?>
@@ -649,8 +648,8 @@ foreach ($jenis as $item) {
   for($a=$awal;$a<=$akhir;$a++){
     ?> "<?php echo date('d-m-Y', strtotime($a)); ?>",
                 <?php
-  }
-  ?>
+                }
+            ?>
             ],
             datasets: [{
                 label: 'Pemasukan',
@@ -846,7 +845,8 @@ foreach ($jenis as $item) {
             const siswa = $("#siswa");
             const kategoriData = @json($kategori);
 
-            $('.wrapper-siswa, .wrapper-kelas').hide();
+            $('.wrapper-siswa').hide();
+            $('#exampleModal').find('.wrapper-kelas').hide();
 
             kategoriData.forEach(data => {
                 $kategori.append(new Option(data.kategori, data.id));
@@ -859,7 +859,7 @@ foreach ($jenis as $item) {
                 parent.find(".wrapper-kelas, .wrapper-siswa").hide();
                 parent.find(".kategori").val("").change();
                 parent.find(".kelas").empty().append(new Option('--- Pilih Kelas ---'));
-                parent.find(".siswa").empty().append(new Option('--- Pilih Siswa ---'));
+                // parent.find(".siswa").empty().append(new Option('--- Pilih Siswa ---'));
 
                 let kategoriFiltered = kategoriData.filter(item => item.id_tipe == jenisVal);
                 parent.find(".kategori").empty().append(new Option('--- Pilih Kategori ---'));
@@ -872,15 +872,17 @@ foreach ($jenis as $item) {
 
             $(document).on("change", ".kategori", function() {
                 let parent = $(this).closest(".transaksi-item");
+                console.log(parent)
                 let kategoriVal = $(this).val();
 
-                parent.find(".wrapper-kelas, .wrapper-siswa").hide();
+                // parent.find(".wrapper-kelas, .wrapper-siswa").hide();
                 parent.find(".kelas").empty().append(new Option('--- Pilih Kelas ---'));
-                parent.find(".siswa").empty().append(new Option('--- Pilih Siswa ---'));
 
                 const found = kategoriData.find(item => item.id == kategoriVal);
                 if (found && found.untuk_siswa === "Y") {
+                    parent.find(".siswa").empty().append(new Option('--- Pilih Siswa ---'));
                     parent.find(".wrapper-kelas").show();
+
                     $.ajax({
                         url: "{{ route('kelas') }}",
                         type: "GET",
@@ -938,24 +940,29 @@ foreach ($jenis as $item) {
                 newInput.find(".select2").remove();
                 newInput.find("select").removeClass("select2-hidden-accessible").removeAttr(
                     "data-select2-id").removeAttr("aria-hidden");
+                newInput.find('.wrapper-kelas, .wrapper-siswa').hide();
 
-                let uniqueId = "select2-" + Date.now();
-                newInput.find("select").attr("id", uniqueId);
+                // let uniqueId = "select2-" + Date.now();
+                // newInput.find("select").attr("id", uniqueId);
 
                 $("#transaksi-container").append(newInput);
+
                 newInput.find(".datepicker2").datepicker({
                     format: 'yyyy-mm-dd',
                     autoclose: true
                 });
 
-                newInput.find("select").select2({
-                    placeholder: "--- Pilih ---",
-                    width: "100%"
+                newInput.find(".js-example-basic-single, .kelas, .siswa").select2({
+                    width: "100%",
+                    placeholder: "--- Pilih Opsi ---",
+                    allowClear: true,
+                    dropdownParent: $(this)
                 });
             });
 
             $(document).on("click", ".remove-input", function() {
-                if ($(".transaksi-item").length > 1) $(this).closest(".transaksi-item").remove();
+                if ($("#transaksi-container").find(".transaksi-item").length > 1) $(this).closest(
+                    ".transaksi-item").remove();
                 else alert("Minimal harus ada satu transaksi!");
             });
 
@@ -967,6 +974,7 @@ foreach ($jenis as $item) {
                     dropdownParent: $(this)
                 });
             })
+
         });
 
         window.onload = function() {

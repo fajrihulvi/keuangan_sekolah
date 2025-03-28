@@ -47,7 +47,6 @@ class KwetansiController extends Controller
 
             return view('app.kwetansi.index', compact('kelas','data','siswa'));
         }
-
         return view('app.kwetansi.index', compact('kelas'));
     }
     public function print(Request $request)

@@ -139,6 +139,8 @@ class HomeController extends Controller
             $kategori_filter = Kategori::where('id_tipe',$_GET['kategori'])->get();
             if(!$kategori_filter) $kategori_filter = $kategori;
         }
+
+
         return view('app.index',
             [
                 'pemasukan_hari_ini' => $pemasukan_hari_ini,
@@ -268,27 +270,43 @@ class HomeController extends Controller
         $jenis = Jenis::all();
         $kelas = Kelas::all();
         // $siswa = Siswa::all();
-        return view('app.transaksi',compact('transaksi','kategori','jenis','kelas'));
+        return view('app.transaksi',compact('transaksi','kategori','jenis','kelas',));
     }
 
     public function transaksi_aksi(Request $req)
     {
-        dd($req->all());
-        $req->merge([
-            'nominal' => preg_replace('/\D/', '', $req->nominal)
-        ]);
+        // dd($req->all());
         $req->validate([
-            'tanggal'=>"date|required",
+            'tanggal'=>"required",
             'jenis'=>"required",
             'kategori_id'=>"required|exists:kategori,id",
-            'id_siswa'=>"nullable|exists:siswa,id",
             'nominal'=>'required',
             'keterangan'=>'required',
         ]);
+        $req->merge([
+            'nominal' => preg_replace('/\D/', '', $req->nominal),
+        ]);
+        // dd($req->all());
+        try {
+            foreach ($req->kategori_id as $index => $kategori_id) {
+                // $req->nominal = preg_replace('/\D/', '', $req->nominal[$index]);
+                Transaksi::create([
+                    'tanggal' => $req->tanggal[$index],
+                    'jenis' => $req->jenis[$index],
+                    'kategori_id' => $kategori_id,
+                    'id_siswa' => $req->id_siswa[$index] ?? null,
+                    'nominal' => $req->nominal[$index],
+                    'keterangan' => $req->keterangan[$index],
+                ]);
+            }
 
-        $ok = Transaksi::create($req->all());
+            DB::commit();
 
-        return redirect()->back()->with("success","Transaksi telah disimpan!");
+            return redirect()->back()->with("success", "Semua transaksi berhasil disimpan!");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with("error", "Gagal menyimpan transaksi: " . $e->getMessage());
+        }
     }
 
     public function transaksi_update($id, Request $req)
@@ -521,89 +539,5 @@ class HomeController extends Controller
     {
         $data = Kelas::get();
         return json_encode($data);
-    }
-
-    public function dataCategotyMonth(Request $request){
-        $jenis = Jenis::get();
-        $kategori = Kategori::get();
-        $pemasukan = null;
-        $pengeluaran = null;
-        $bantuan = null;
-        foreach ($jenis as $item) {
-            if (Str::lower($item->tipe) == 'pemasukan') {
-                $pemasukan = $item->id;
-            } elseif (Str::lower($item->tipe) == 'pengeluaran') {
-                $pengeluaran = $item->id;
-            } else {
-                $bantuan = $item->id;
-            }
-        }
-        $totalRevenue = array();
-        $dataPengeluaran = array();
-        $validate= Validator::make($request->all(),["tipe"=>'exists:jenis,id']);
-        if($validate->fails()){
-            return response()->json(['message'=>"Tipe tidak ada"],422);
-        }
-
-        $bln = date('m');
-        if(isset($request->tipe)){
-            foreach ($kategori as $k){
-                $id_kategori = $k->id;
-                if($k->id_tipe == $request->tipe){
-                    $pemasukan_perkategori = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pemasukan)->where('kategori_id', $id_kategori)->whereMonth('tanggal', $bln)->first();
-                    $total = $pemasukan_perkategori->total;
-
-                    if ($pemasukan_perkategori->total == '') {
-                        array_push($totalRevenue, ["kategori"=> $k->kategori,"total"=>0]);
-                    } else {
-                        array_push($totalRevenue, ["kategori"=> $k->kategori,"total"=> $total]);
-                    }
-
-                    $pengeluaran_perkategori = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pengeluaran)->where('kategori_id', $id_kategori)->whereMonth('tanggal', $bln)->first();
-                    $totalPengeluaran = $pengeluaran_perkategori->total;
-                    if ($pengeluaran_perkategori->total == '') {
-                        array_push($dataPengeluaran,["kategori"=>$k->kategori,"total"=>0]);
-                    } else {
-                        array_push($dataPengeluaran,["kategori"=>$k->kategori,"total"=>$totalPengeluaran]);
-                    }
-                }
-            }
-        }else{
-            foreach ($kategori as $k){
-            $id_kategori = $k->id;
-                $pemasukan_perkategori = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pemasukan)->where('kategori_id', $id_kategori)->whereMonth('tanggal', $bln)->first();
-                $total = $pemasukan_perkategori->total;
-
-                if ($pemasukan_perkategori->total == null) {
-                    array_push($totalRevenue, ["kategori"=> $k->kategori,"total"=>0]);
-                    // array_push($totalRevenue, ["kategori"=> $k->kategori,"total"=>'0,']);
-                } else {
-                    array_push($totalRevenue, ["kategori"=> $k->kategori,"total"=>  $total]);
-                }
-
-                $pengeluaran_perkategori = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pengeluaran)->where('kategori_id', $id_kategori)->whereMonth('tanggal', $bln)->first();
-                $totalPengeluaran = $pengeluaran_perkategori->total;
-                if ($pengeluaran_perkategori->total == '') {
-                    array_push($dataPengeluaran,["kategori"=>$k->kategori,"total"=>0]);
-                    // array_push($dataPengeluaran,["kategori"=>$k->kategori,"total"=>'0,']);
-                } else {
-                    array_push($dataPengeluaran,["kategori"=>$k->kategori,"total"=>$totalPengeluaran]);
-                }
-            }
-        }
-        // dd($totals);
-        return response()->json(["pemasukan"=>$totalRevenue,"pengeluaran"=>$dataPengeluaran],200);
-    }
-
-    public function importSiswa(Request $request)
-    {
-        try {
-            // dd($request->file('import_siswa'));
-            Excel::import(new SiswaImport, $request->file('import_siswa'));
-            return redirect()->route('siswa.index')->with('success','Berhasil menambahkan data siswa dari file');
-        } catch (\Throwable $th) {
-            dd($th);
-            return redirect()->route('siswa.index')->with('error','Gagal menambahkan data siswa dari file');
-        }
     }
 }
