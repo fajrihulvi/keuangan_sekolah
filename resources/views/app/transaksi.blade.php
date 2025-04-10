@@ -63,13 +63,13 @@ foreach ($jenis as $item) {
                 <div class="card-body pt-0">
                     <div>
                         @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <ul>
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
+                            <div class="alert alert-danger">
+                                <ul>
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
                         @endif
                     </div>
                     <!-- Tambah Transaksi -->
@@ -261,7 +261,8 @@ foreach ($jenis as $item) {
                                     <tr>
                                         <td class="text-center">{{ $no++ }}</td>
                                         <td class="text-center">{{ date('d-m-Y', strtotime($t->tanggal)) }}</td>
-                                        <td class="text-center">{{ $t->kategori->kategori ?? '-' }} <span class="font-italic"> (
+                                        <td class="text-center">{{ $t->kategori->kategori ?? '-' }} <span
+                                                class="font-italic"> (
                                                 {{ $t->kategori->jenis->tipe }} )</span></td>
                                         <td class="text-center">
                                             {{ isset($t->siswa->nama_lengkap) ? $t->siswa->nama_lengkap : '-' }}</td>
@@ -369,7 +370,8 @@ foreach ($jenis as $item) {
 
                                                                         @isset($t->siswa)
                                                                             <div class="form-group wrapper-kelas"
-                                                                                id="kelas" style="width: 100%;margin-bottom:20px">
+                                                                                id="kelas"
+                                                                                style="width: 100%;margin-bottom:20px">
                                                                                 <label>Kelas</label>
                                                                                 <select class="form-control kelas"
                                                                                     name="kelas"
@@ -486,178 +488,196 @@ foreach ($jenis as $item) {
 @endsection
 
 @section('script')
-        <script>
-                $(document).ready(function() {
-                    const $kategori = $("#kategori");
-                    const $jenisFilter = $("#filter-jenis");
-                    const $kategoriFilter = $("#kategori-filter");
-                    const kelas = $("#kelas");
-                    const siswa = $("#siswa");
-                    const kategoriData = @json($kategori);
+    <script>
+        $(document).ready(function() {
+            const $kategori = $("#kategori");
+            const $jenisFilter = $("#filter-jenis");
+            const $kategoriFilter = $("#kategori-filter");
+            const kelas = $("#kelas");
+            const siswa = $("#siswa");
+            const kategoriData = @json($kategori);
 
-                    $('.wrapper-siswa').hide();
-                    $('#exampleModal').find('.wrapper-kelas').hide();
+            $('.wrapper-siswa').hide();
+            $('#exampleModal').find('.wrapper-kelas').hide();
 
-                    kategoriData.forEach(data => {
-                        $kategori.append(new Option(data.kategori, data.id));
-                        $kategoriFilter.append(new Option(data.kategori, data.id));
-                    });
+            kategoriData.forEach(data => {
+                $kategori.append(new Option(data.kategori, data.id));
+                $kategoriFilter.append(new Option(data.kategori, data.id));
+            });
 
-                    $(document).on("change", ".jenis", function() {
-                        let parent = $(this).closest(".transaksi-item");
-                        let jenisVal = $(this).val();
-                        console.debug(parent)
-                        parent.find(".wrapper-kelas, .wrapper-siswa").hide();
-                        parent.find(".kategori").val("").change();
-                        parent.find(".kelas").empty().append(new Option('--- Pilih Kelas ---'));
-                        // parent.find(".siswa").empty().append(new Option('--- Pilih Siswa ---'));
+            $(document).on("change", ".jenis", function() {
+                let parent = $(this).closest(".transaksi-item");
+                let jenisVal = $(this).val();
+                console.debug(parent)
+                parent.find(".wrapper-kelas, .wrapper-siswa").hide();
+                parent.find(".kategori").val("").change();
+                parent.find(".kelas").empty().append(new Option('--- Pilih Kelas ---'));
+                // parent.find(".siswa").empty().append(new Option('--- Pilih Siswa ---'));
 
-                        let kategoriFiltered = kategoriData.filter(item => item.id_tipe == jenisVal);
-                        parent.find(".kategori").empty().append(new Option('--- Pilih Kategori ---'));
+                let kategoriFiltered = kategoriData.filter(item => item.id_tipe == jenisVal);
+                parent.find(".kategori").empty().append(new Option('--- Pilih Kategori ---'));
 
-                        kategoriFiltered.forEach(item => {
-                            parent.find(".kategori").append(new Option(item.kategori, item.id));
-                        });
-                    });
+                kategoriFiltered.forEach(item => {
+                    parent.find(".kategori").append(new Option(item.kategori, item.id));
+                });
+            });
 
 
-                    $(document).on("change", ".kategori", function() {
-                        let parent = $(this).closest(".transaksi-item");
-                        let kategoriVal = $(this).val();
+            $(document).on("change", ".kategori", function() {
+                let parent = $(this).closest(".transaksi-item");
+                console.log(parent);
+                let kategoriVal = $(this).val();
 
-                        parent.find(".wrapper-kelas, .wrapper-siswa").hide();
-                        parent.find(".kelas").empty().append(new Option('--- Pilih Kelas ---'));
+                parent.find(".wrapper-kelas, .wrapper-siswa").hide();
+                parent.find(".kelas").empty().append(new Option('--- Pilih Kelas ---'));
 
-                        const found = kategoriData.find(item => item.id == kategoriVal);
-                        if (found && found.untuk_siswa === "Y") {
-                            parent.find(".siswa").empty().append(new Option('--- Pilih Siswa ---'));
-                            parent.find(".wrapper-kelas").show();
+                const found = kategoriData.find(item => item.id == kategoriVal);
+                if (found && found.untuk_siswa === "Y") {
+                    parent.find(".siswa").empty().append(new Option('--- Pilih Siswa ---'));
+                    parent.find(".wrapper-kelas").show();
 
-                            $.ajax({
-                                url: "{{ route('kelas') }}",
-                                type: "GET",
-                                dataType: "json",
-                                success: data => {
-                                    data.forEach(item => {
-                                        parent.find(".kelas").append( new Option(item.nama_kelas,item.id)
-                                        );
-                                    });
-                                }
+                    $.ajax({
+                        url: "{{ route('kelas') }}",
+                        type: "GET",
+                        dataType: "json",
+                        success: data => {
+                            data.forEach(item => {
+                                parent.find(".kelas").append(new Option(item.nama_kelas,
+                                    item.id));
                             });
                         }
                     });
+                }
+            });
 
-                    $(document).on("change", ".kelas", function() {
-                        let parent = $(this).closest(".transaksi-item");
-                        let kelasVal = $(this).val();
+            $(document).on("change", ".kelas", function() {
+                let parent = $(this).closest(".transaksi-item");
+                let kelasVal = $(this).val();
 
-                        parent.find(".wrapper-siswa").hide();
-                        parent.find(".siswa").empty().append(new Option('--- Pilih Siswa ---'));
+                parent.find(".wrapper-siswa").hide();
+                parent.find(".siswa").empty().append(new Option('--- Pilih Siswa ---'));
 
-                        if (kelasVal) {
-                            parent.find(".wrapper-siswa").show();
+                if (kelasVal) {
+                    parent.find(".wrapper-siswa").show();
 
-                            $.ajax({
-                                url: "{{ route('siswa-kelas') }}?kelas=" + kelasVal,
-                                type: "GET",
-                                dataType: "json",
-                                success: data => {
-                                    data.forEach(item => {
-                                        parent.find(".siswa").append(new Option(item.nama_lengkap,item.id));
-                                    });
-                                }
+                    $.ajax({
+                        url: "{{ route('siswa-kelas') }}?kelas=" + kelasVal,
+                        type: "GET",
+                        dataType: "json",
+                        success: data => {
+                            data.forEach(item => {
+                                parent.find(".siswa").append(new Option(item
+                                    .nama_lengkap, item.id));
                             });
                         }
                     });
+                }
+            });
 
 
-                    $(document).on("input", ".nominal", function(e) {
-                        let bilangan = e.target.value.replace(/[^,\d]/g, '').toString();
-                        let split = bilangan.split(',');
-                        let sisa = split[0].length % 3;
-                        let rupiah = split[0].substr(0, sisa);
-                        let ribuan = split[0].substr(sisa).match(/\d{1,3}/gi);
-                        if (ribuan) rupiah += (sisa ? '.' : '') + ribuan.join('.');
-                        $(this).val('Rp. ' + (split[1] !== undefined ? rupiah + ',' + split[1] : rupiah));
-                    });
+            $(document).on("input", ".nominal", function(e) {
+                let bilangan = e.target.value.replace(/[^,\d]/g, '').toString();
+                let split = bilangan.split(',');
+                let sisa = split[0].length % 3;
+                let rupiah = split[0].substr(0, sisa);
+                let ribuan = split[0].substr(sisa).match(/\d{1,3}/gi);
+                if (ribuan) rupiah += (sisa ? '.' : '') + ribuan.join('.');
+                $(this).val('Rp. ' + (split[1] !== undefined ? rupiah + ',' + split[1] : rupiah));
+            });
 
-                    $("#tambahInput").click(function() {
-                        let newInput = $(".transaksi-item:first").clone();
+            $("#tambahInput").click(function() {
+                let newInput = $(".transaksi-item:first").clone();
 
-                        newInput.find("input, select, textarea").val("");
-                        newInput.find(".datepicker2").removeClass("hasDatepicker").removeAttr("id");
-                        newInput.find(".select2").remove();
-                        newInput.find("select").removeClass("select2-hidden-accessible").removeAttr(
-                            "data-select2-id").removeAttr("aria-hidden");
+                newInput.find("input, select, textarea").val("");
+                // newInput.find(".datepicker2").removeClass("hasDatepicker").removeAttr("id");
+                newInput.find(".select2").remove();
+                newInput.find("select").removeClass("select2-hidden-accessible").removeAttr(
+                    "data-select2-id").removeAttr("aria-hidden");
 
-                        newInput.find('.wrapper-kelas, .wrapper-siswa').hide();
-                        newInput.find('.kelas, .siswa').empty();
+                newInput.find('.wrapper-kelas, .wrapper-siswa').hide();
+                newInput.find('.kelas, .siswa').empty();
 
-                        // let uniqueId = "select2-" + Date.now();
-                        // newInput.find("select").attr("id", uniqueId);
+                // let uniqueId = "datepicker2-" + Date.now();
+                // newInput.find(".datepicker2").attr("id", uniqueId);
 
-                        $("#transaksi-container").append(newInput);
+                $("#transaksi-container").append(newInput);
 
-                        newInput.find(".js-example-basic-single, .kelas, .siswa").select2({
-                            width: "100%",
-                            placeholder: "--- Pilih Opsi ---",
-                            allowClear: true,
-                            dropdownParent: newInput
-                        });
-                        newInput.find(".datepicker2").datepicker({
-                            format: 'yyyy-mm-dd',
-                            autoclose: true
-                        });
-
-                    });
-
-                    $(document).on("click", ".remove-input", function() {
-                        if ($("#transaksi-container").find(".transaksi-item").length > 1) $(this).closest(".transaksi-item").remove();
-                        else alert("Minimal harus ada satu transaksi!");
-                    });
-
-                    $('#exampleModal').on('show.bs.modal', function (){
-                        $(".js-example-basic-single, .kelas, .siswa").select2({
-                            width: "100%",
-                            placeholder: "--- Pilih Opsi ---",
-                            allowClear: true,
-                            dropdownParent: $(this)
-                        });
-                    })
-
-                    $(document).on("change", ".datepicker2", function () {
-        let parent = $(this).closest(".transaksi-item");
-
-        parent.find(".js-example-basic-single, .kelas, .siswa").each(function () {
-            let $select = $(this);
-            let select2Instance = $select.data('select2');
-
-            if (select2Instance) {
-                select2Instance.options.set('dropdownParent', parent);
-            } else {
-                $select.select2({
+                newInput.find(".js-example-basic-single").select2({
                     width: "100%",
                     placeholder: "--- Pilih Opsi ---",
                     allowClear: true,
-                    dropdownParent: parent
+                    dropdownParent: newInput
                 });
-            }
-        });
-    });
+                newInput.find(".datepicker2").datepicker({
+                    // newInput.find("#" + uniqueId).datepicker({
+                    format: 'yyyy-mm-dd',
+                    autoclose: true
+                });
 
-                    $('[id^=modalEdit_]').on('shown.bs.modal', function () {
-                        var modalId = $(this).attr('id');
-                        $("#" + modalId + " .js-example-basic-single, #" + modalId + " .kelas, #" + modalId + " .siswa").select2({
+            });
+
+            $(document).on("change", ".datepicker2", function() {
+                let parent = $(this).closest(".transaksi-item");
+                parent.find(".js-example-basic-single").each(function() {
+                    let $select = $(this);
+                    $select.select2({
+                        width: "100%",
+                        placeholder: "--- Pilih Opsi ---",
+                        allowClear: true,
+                        dropdownParent: parent
+                    });
+                });
+            });
+
+            $(document).on("click", ".remove-input", function() {
+                if ($("#transaksi-container").find(".transaksi-item").length > 1) $(this).closest(
+                    ".transaksi-item").remove();
+                else alert("Minimal harus ada satu transaksi!");
+            });
+
+            $('#exampleModal').on('show.bs.modal', function() {
+                $(".js-example-basic-single").select2({
+                    width: "100%",
+                    placeholder: "--- Pilih Opsi ---",
+                    allowClear: true,
+                    dropdownParent: $(this)
+                });
+            })
+
+            $('[id^=modalEdit_]').on('shown.bs.modal', function() {
+                var modalId = $(this).attr('id');
+                $("#" + modalId + " .js-example-basic-single, #" + modalId + " .kelas, #" + modalId +
+                    " .siswa").select2({
+                    width: "100%",
+                    placeholder: "--- Pilih Opsi ---",
+                    allowClear: true,
+                    dropdownParent: $("#" + modalId)
+                });
+            });
+            // $(".datepicker2").datepicker({
+            //     format: 'yyyy-mm-dd',
+            //     autoclose: true
+            // });
+            $(document).on("change", ".datepicker2", function() {
+                let parent = $(this).closest(".transaksi-item");
+                console.info(parent);
+                parent.find(".js-example-basic-single").each(function() {
+                    let $select = $(this);
+                    let select2Instance = $select.data('select2');
+
+                    if (select2Instance) {
+                        select2Instance.options.set('dropdownParent', parent);
+                    } else {
+                        $select.select2({
                             width: "100%",
                             placeholder: "--- Pilih Opsi ---",
                             allowClear: true,
-                            dropdownParent: $("#" + modalId)
+                            dropdownParent: parent
                         });
-                    });
-                    $(".datepicker2").datepicker({
-                            format: 'yyyy-mm-dd',
-                            autoclose: true
-                        });
+                    }
                 });
-            </script>
+            });
+
+        });
+    </script>
 @endsection

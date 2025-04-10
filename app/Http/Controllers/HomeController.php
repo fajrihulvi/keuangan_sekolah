@@ -540,4 +540,89 @@ class HomeController extends Controller
         $data = Kelas::get();
         return json_encode($data);
     }
+
+    public function dataCategotyMonth(Request $request){
+        $jenis = Jenis::get();
+        $kategori = Kategori::get();
+        $pemasukan = null;
+        $pengeluaran = null;
+        $bantuan = null;
+        foreach ($jenis as $item) {
+            if (Str::lower($item->tipe) == 'pemasukan') {
+                $pemasukan = $item->id;
+            } elseif (Str::lower($item->tipe) == 'pengeluaran') {
+                $pengeluaran = $item->id;
+            } else {
+                $bantuan = $item->id;
+            }
+        }
+        $totalRevenue = array();
+        $dataPengeluaran = array();
+        $validate= Validator::make($request->all(),["tipe"=>'exists:jenis,id']);
+        if($validate->fails()){
+            return response()->json(['message'=>"Tipe tidak ada"],422);
+        }
+
+        $bln = date('m');
+        if(isset($request->tipe)){
+            foreach ($kategori as $k){
+                $id_kategori = $k->id;
+                if($k->id_tipe == $request->tipe){
+                    $pemasukan_perkategori = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pemasukan)->where('kategori_id', $id_kategori)->whereMonth('tanggal', $bln)->first();
+                    $total = $pemasukan_perkategori->total;
+
+                    if ($pemasukan_perkategori->total == '') {
+                        array_push($totalRevenue, ["kategori"=> $k->kategori,"total"=>0]);
+                    } else {
+                        array_push($totalRevenue, ["kategori"=> $k->kategori,"total"=> $total]);
+                    }
+
+                    $pengeluaran_perkategori = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pengeluaran)->where('kategori_id', $id_kategori)->whereMonth('tanggal', $bln)->first();
+                    $totalPengeluaran = $pengeluaran_perkategori->total;
+                    if ($pengeluaran_perkategori->total == '') {
+                        array_push($dataPengeluaran,["kategori"=>$k->kategori,"total"=>0]);
+                    } else {
+                        array_push($dataPengeluaran,["kategori"=>$k->kategori,"total"=>$totalPengeluaran]);
+                    }
+                }
+            }
+        }else{
+            foreach ($kategori as $k){
+            $id_kategori = $k->id;
+                $pemasukan_perkategori = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pemasukan)->where('kategori_id', $id_kategori)->whereMonth('tanggal', $bln)->first();
+                $total = $pemasukan_perkategori->total;
+
+                if ($pemasukan_perkategori->total == null) {
+                    array_push($totalRevenue, ["kategori"=> $k->kategori,"total"=>0]);
+                    // array_push($totalRevenue, ["kategori"=> $k->kategori,"total"=>'0,']);
+                } else {
+                    array_push($totalRevenue, ["kategori"=> $k->kategori,"total"=>  $total]);
+                }
+
+                $pengeluaran_perkategori = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pengeluaran)->where('kategori_id', $id_kategori)->whereMonth('tanggal', $bln)->first();
+                $totalPengeluaran = $pengeluaran_perkategori->total;
+                if ($pengeluaran_perkategori->total == '') {
+                    array_push($dataPengeluaran,["kategori"=>$k->kategori,"total"=>0]);
+                    // array_push($dataPengeluaran,["kategori"=>$k->kategori,"total"=>'0,']);
+                } else {
+                    array_push($dataPengeluaran,["kategori"=>$k->kategori,"total"=>$totalPengeluaran]);
+                }
+            }
+        }
+        // dd($totals);
+        return response()->json(["pemasukan"=>$totalRevenue,"pengeluaran"=>$dataPengeluaran],200);
+    }
+
+    public function importSiswa(Request $request)
+    {
+        try {
+            // dd($request->file('import_siswa'));
+            Excel::import(new SiswaImport, $request->file('import_siswa'));
+            return redirect()->route('siswa.index')->with('success','Berhasil menambahkan data siswa dari file');
+        } catch (\Throwable $th) {
+            dd($th);
+            return redirect()->route('siswa.index')->with('error','Gagal menambahkan data siswa dari file');
+        }
+    }
+
 }

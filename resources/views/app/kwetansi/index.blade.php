@@ -46,7 +46,7 @@
                                 <select class="form-control" name="bulan" id="bulan">
                                     <option value="">Semua</option>
                                     @for ($i = 1; $i <= 12; $i++)
-                                        <option value="{{ $i }}" {{ request('bulan') == $i ? 'selected' : '' }}>
+                                        <option value="{{ $i }}">
                                             {{ \Carbon\Carbon::create()->month($i)->translatedFormat('F') }}
                                         </option>
                                     @endfor
@@ -57,8 +57,7 @@
                                 <select class="form-control" name="tahun" id="tahun">
                                     <option value="">Semua</option>
                                     @foreach (range(date('Y'), date('Y') - 10) as $tahun)
-                                        <option value="{{ $tahun }}"
-                                            {{ request('tahun') == $tahun ? 'selected' : '' }}>
+                                        <option value="{{ $tahun }}">
                                             {{ $tahun }}
                                         </option>
                                     @endforeach
