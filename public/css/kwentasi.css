@@ -17,7 +17,7 @@ div.container {
 
 .kw-header {
     text-align: center;
-    margin-bottom: 20px;
+    /*margin-bottom: 20px;*/
 }
 .kw-table-bordered {
     border-top: 1px solid black;
@@ -43,7 +43,7 @@ p {
 
 .kw-total {
     display: grid;
-    grid-template-columns: 467px 1fr;
+    grid-template-columns: 2fr 1fr;
     /* display: flex;
     justify-content: space-between; */
     width: 100%;
@@ -51,7 +51,7 @@ p {
 }
 
 .terbilang{
-    width: 920px;
+    /* width: 920px; */
     font-weight: bold;
 }
 
@@ -60,19 +60,20 @@ p {
 }
 
 .kw-title{
-        padding-top: 1rem;
+    padding-top: 10px;
+    margin-bottom:0px;
 }
 
 /* table > tr .text-center */
 .kw-height {
     min-height: fit-content;
-    height: 160px;
+    /* height: 160px; */
 }
 
 .kw-ttd {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    /* height: 100%; */
     justify-content: space-between;
 }
 

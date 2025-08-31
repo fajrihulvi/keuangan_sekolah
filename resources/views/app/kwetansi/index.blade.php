@@ -23,7 +23,7 @@
                 </div>
                 <div class="card-body">
                     <form action="{{ route('kwetansi.index') }}" method="GET">
-                        @csrf
+                        {{-- @csrf --}}
                         <div class="row">
                             <div class="col-lg-2">
                                 <label>Kelas</label>
@@ -76,6 +76,19 @@
                                 </div>
                             </div>
                         </div>
+                        @if (request()->has(['siswa', 'bulan', 'tahun']))
+                            <div class="row" style="gap: 8px; margin-bottom: 16px;">
+                                <a target="_BLANK"
+                                    href="{{ route('kwetansi.print', [
+                                        'siswa' => request('siswa'),
+                                        'bulan' => request('bulan'),
+                                        'tahun' => request('tahun'),
+                                    ]) }}"
+                                    class="btn btn-outline-secondary col-md-2">
+                                    <i class="fa fa-print"></i> &nbsp; CETAK PRINT
+                                </a>
+                            </div>
+                        @endif
                     </form>
 
                 </div>
@@ -84,12 +97,9 @@
                 <div class="my-2">
                     <div class="container">
                         <div class="row" style="gap: 8px; margin-bottom: 16px;">
-                            <a target="_BLANK"
-                                href="{{ route('kwetansi.pdf', ['siswa' => $_GET['siswa'], 'bulan' => $_GET['bulan'], 'tahun' => $_GET['tahun']]) }}"
-                                class="btn btn-outline-secondary"><i class="fa fa-file-pdf-o "></i> &nbsp; CETAK PDF</a>
-                            <a target="_BLANK"
-                                href="{{ route('kwetansi.print', ['siswa' => $_GET['siswa'], 'bulan' => $_GET['bulan'], 'tahun' => $_GET['tahun']]) }}"
-                                class="btn btn-outline-secondary"><i class="fa fa-print "></i> &nbsp; CETAK PRINT</a>
+                            {{-- <a target="_BLANK"
+                            href="{{ route('kwetansi.pdf', ['siswa' => $_GET['siswa'], 'bulan' => $_GET['bulan'], 'tahun' => $_GET['tahun']]) }}"
+                            class="btn btn-outline-secondary"><i class="fa fa-file-pdf-o "></i> &nbsp; CETAK PDF</a> --}}
                         </div>
                         <div class="kw-nav">
                             <img src="{{ asset('gambar/sistem/logo1.png') }}" alt="" class="img-fluid">
@@ -164,18 +174,18 @@
                         </table>
 
                         {{-- <div class="table-summary d-flex justify-content-between w-100">
-                        335px padding
-                        <p class="w-80">Terbilang</p>
-                        <table class="table kw-table-bordered">
-                            <tr>
-                                <td>Total</td>
-                                <td class="d-flex w-100 justify-content-between" style="border: none;outline-offset: 0;">
-                                    <p >Rp.</p>
-                                    <p>{{number_format($total).',-'}}</p>
-                                </td>
-                            </tr>
-                        </table>
-                    </div> --}}
+                    335px padding
+                    <p class="w-80">Terbilang</p>
+                    <table class="table kw-table-bordered">
+                        <tr>
+                            <td>Total</td>
+                            <td class="d-flex w-100 justify-content-between" style="border: none;outline-offset: 0;">
+                                <p >Rp.</p>
+                                <p>{{number_format($total).',-'}}</p>
+                            </td>
+                        </tr>
+                    </table>
+                </div> --}}
 
                         <div class="kw-total">
                             <div class="kw-height-terbilang w-100">
@@ -210,29 +220,15 @@
                                             <td class="text-center">Yang Menerima</td>
                                         </tr>
                                     </table>
+                                    <div class="d-flex justify-content-center">
+                                        <img src="{{ asset('storage/' . Auth::user()->signature) }}"
+                                            alt="{{ Auth::user()->name }}" width="120">
+                                    </div>
                                     {{-- <p class="text-center">Kessyie Arisani, S.Si</p> --}}
-                                    <p class="text-center">{{Auth::user()->name}}</p>
+                                    <p class="text-center"><b>{{ Auth::user()->name }}</b></p>
                                 </div>
                             </div>
-                            {{-- <div class="terbilang">Terbilang:</div>
-                        <table class="table kw-table-bordered">
-                            <tr>
-                                <td class="kw-text-bold">Total</td>
-                                <td class="d-flex w-100 justify-content-between" style="border: none;outline-offset: 0;">
-                                    <p >Rp.</p>
-                                    <p>{{number_format($total).',-'}}</p>
-                                </td>
-                            </tr>
-                        </table> --}}
                         </div>
-
-
-                        {{-- <div class="footer">
-                        <p>Pangkalpinang, 20 Januari 2024</p>
-                        <p>Yang Menerima</p>
-                        <p>Kessyie Arisani, S.Si</p>
-                        <p>Catatan: - Disimpan sebagai bukti pembayaran SAH</p>
-                    </div> --}}
                     </div>
                 </div>
             @endisset
@@ -360,7 +356,7 @@
 
             $('#tanggal').select2({
                 width: '100%',
-                placeholder: '--- Pilih Bulan ---',
+                placeholder: '--- Pilih Tanggal ---',
                 allowClear: true,
                 // dropdownParent: $('#exampleModal')
             }).addClass("form-control");

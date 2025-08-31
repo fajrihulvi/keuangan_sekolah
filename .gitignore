@@ -18,3 +18,5 @@ yarn-error.log
 /.idea
 /.vscode
 .data.txt
+.htaccess
+Archive.zip

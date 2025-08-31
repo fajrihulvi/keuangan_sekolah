@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Kelas;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class KelasController extends Controller
 {
@@ -17,7 +18,7 @@ class KelasController extends Controller
     }
     public function index()
     {
-        $data = Kelas::all();
+        $data = Kelas::orderBy('nama_kelas')->get();
         return view('app.kelas.index',compact('data'));
     }
 
@@ -34,10 +35,16 @@ class KelasController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request,[
+        $data = $this->validate($request,[
             'nama_kelas'=>'required'
         ]);
-        Kelas::create($request->all());
+        $kelas = Kelas::query();
+        $data['nama_kelas'] = Str::upper($data['nama_kelas']);
+        $exists =$kelas->where('nama_kelas','=',$data['nama_kelas'])->exists();
+        if($exists){
+            return redirect(route('kelas.index'))->with('error','Data sudah ada.');
+        }
+        $kelas->create($data);
         return redirect(route('kelas.index'))->with('success','Berhasil menambahkan data kelas');
     }
 

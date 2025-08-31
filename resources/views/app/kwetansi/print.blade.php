@@ -1,49 +1,60 @@
+@php
+    Carbon\Carbon::setLocale('id');
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Kwitansi Pembayaran - {{ $siswa->nama_lengkap }} {{ Carbon\Carbon::create()->month(request()->bulan)->translatedFormat('F') }} {{ request()->tahun}}</title>
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('gambar/sistem/pavicon.png')}}">
     <link href="{{ asset('asset_admin/plugins/pg-calendar/css/pignose.calendar.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('asset_admin/plugins/chartist/css/chartist.min.css') }}">
     <link rel="stylesheet" href="{{ asset('asset_admin/plugins/chartist-plugin-tooltips/css/chartist-plugin-tooltip.css') }}">
     <link href="{{ asset('asset_admin/css/style.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{asset('css/kwentasi.css')}}">
+    <style>
+        @page {
+            /*size: 330mm 210mm;*/
+            size: 210mm 330mm;
+            margin: 7mm;
+        }
+    </style>
 </head>
 <body>
 
     <div class="my-2">
         <div class="container">
             <div class="kw-nav">
-                <img src="{{asset('gambar/sistem/logo1.png')}}" alt="" class="img-fluid">
-                <div class="kw-header d-flex flex-column align-items-center " >
+                <img src="{{ asset('gambar/sistem/logo1.png') }}" alt="" class="img-fluid">
+                <div class="kw-header d-flex flex-column align-items-center ">
                     <h3><b>YAYASAN ADH-DHUHAA PANGKALPINANG</b></h3>
                     <h3><b>SEKOLAH DASAR ISLAM TERPADU QURANI ADH-DHUHAA</b></h3>
-                    <p>Jl. Melati 1 No. 257 Ke. Taman Bunga Kec. Gerunggang Kota Pangkalpinang Provinsi Kep. Bangka Belitung</p>
+                    <p>Jl. Melati 1 No. 257 Ke. Taman Bunga Kec. Gerunggang Kota Pangkalpinang Provinsi Kep. Bangka
+                        Belitung</p>
                 </div>
-                <img src="{{asset('gambar/sistem/logo-jsit-06.png')}}" alt="" class="img-fluid">
+                <img src="{{ asset('gambar/sistem/logo-jsit-06.png') }}" alt="" class="img-fluid">
             </div>
 
-            <h3 class="kw-title"><b>BUKTI PEMBAYARAN SISWA</b></h3>
-            <div class="d-flex justify-content-between w-100 my-4 px-5">
+            <h4 class="kw-title"><b>BUKTI PEMBAYARAN SISWA</b></h4>
+            <div class="d-flex justify-content-between w-100 my-2 px-5">
                 <table class="w-full">
                     <tr>
-                        <td >Nama Siswa</td>
+                        <td>Nama Siswa</td>
                         <td class="px-3">:</td>
-                        <td>{{$siswa->nama_lengkap}}</td>
+                        <td>{{ $siswa->nama_lengkap }}</td>
                     </tr>
                     <tr>
                         <td>NISN</td>
                         <td class="px-3">:</td>
-                        <td>{{$siswa->nisn && ''}}</td>
+                        <td>{{ $siswa->nisn && '' }}</td>
                     </tr>
                 </table>
                 <table>
                     <tr>
                         <td>Kelas</td>
                         <td class="px-3">:</td>
-                        <td>{{$siswa->kelas->nama_kelas}}</td>
+                        <td>{{ $siswa->kelas->nama_kelas }}</td>
                     </tr>
                     <tr>
                         <td>Tanggal</td>
@@ -53,7 +64,7 @@
                 </table>
             </div>
 
-            <table class="table kw-table-bordered">
+            <table class="table kw-table-bordered mb-2">
                 <thead>
                     <tr>
                         <th>No</th>
@@ -68,19 +79,20 @@
                         $total = 0;
                     @endphp
                     @foreach ($data as $item)
-                    @php
-                        $total +=$item->nominal;
-                    @endphp
-                    <tr>
-                        <td>{{$no++}}</td>
-                        <td>{{ \Carbon\Carbon::parse($item->updated_at)->format('d-m-Y') }}
-                        </td>
-                        <td>{{$item->keterangan}}</td>
-                        <td class="d-flex w-100 justify-content-between" style="border: none;outline-offset: 0;border-top: 1px solid black;">
-                            <p class="">Rp.</p>
-                            <p>{{number_format($item->nominal).',-'}}</p>
-                        </td>
-                    </tr>
+                        @php
+                            $total += $item->nominal;
+                        @endphp
+                        <tr>
+                            <td>{{ $no++ }}</td>
+                            <td>{{ \Carbon\Carbon::parse($item->updated_at)->format('d-m-Y') }}
+                            </td>
+                            <td>{{ $item->keterangan }}</td>
+                            <td class="d-flex w-100 justify-content-between"
+                                style="border: none;outline-offset: 0;border-top: 1px solid black;">
+                                <p class="">Rp.</p>
+                                <p>{{ number_format($item->nominal) . ',-' }}</p>
+                            </td>
+                        </tr>
                     @endforeach
                 </tbody>
             </table>
@@ -97,26 +109,32 @@
                     </div>
                 </div>
                 <div class="kw-height">
-                    <table class="table kw-table-bordered">
+                    <table class="table kw-table-bordered mb-2">
                         <tr>
                             <td class="kw-text-bold">Total</td>
-                            <td class="d-flex w-100 justify-content-between" style="border: none;outline-offset: 0;">
-                                <p >Rp.</p>
-                                <p>{{number_format($total).',-'}}</p>
+                            <td class="d-flex w-100 justify-content-between"
+                                style="border: none;outline-offset: 0;">
+                                <p>Rp.</p>
+                                <p>{{ number_format($total) . ',-' }}</p>
                             </td>
                         </tr>
                     </table>
                     <div class="kw-ttd">
                         <table class="w-100">
                             <tr>
-                                <td class="text-center">Pangkalpinang, <span class="py-3">{{Carbon\Carbon::now()->locale('id')->translatedFormat('d F Y')}}</span></td>
+                                <td class="text-center">Pangkalpinang, <span
+                                        class="py-3">{{ Carbon\Carbon::now()->locale('id')->translatedFormat('d F Y') }}</span>
+                                </td>
                             </tr>
                             <tr>
                                 <td class="text-center">Yang Menerima</td>
                             </tr>
                         </table>
+                        <div class="d-flex justify-content-center">
+                            <img src="{{ asset('storage/'.Auth::user()->signature) }}" alt="{{ Auth::user()->name }}" width="120">
+                        </div>
                         {{-- <p class="text-center">Kessyie Arisani, S.Si</p> --}}
-                        <p class="text-center">{{Auth::user()->name}}</p>
+                        <p class="text-center"><b>{{ Auth::user()->name }}</b></p>
                     </div>
                 </div>
             </div>

@@ -20,6 +20,7 @@ class Siswa extends Model
         'nisn',
         'nohp_orangtua',
         'nama_orangtua',
+        'keterangan'
     ];
 
     public function kelas()
