@@ -402,9 +402,17 @@ $groupTransaksi = $transaksi->groupBy('jenis.id')->sort();
       ?>
             </div>
             <div class="row">
-                <h2 class="col mb-3 font-weight-bold">SALDO</h2>
+                <div class="col-12">
+                    <h2 class="mb-3">Saldo per Kategori</h2>
+                    <div class="row" id="category-balance-container">
+                        </div>
+                </div>
             </div>
-            <div class="container-fluid" id="transaction-container">
+
+            <div class="row">
+                <h2 class="col mb-3 font-weight-bold">KEUANGAN</h2>
+            </div>
+            <div id="transaction-container">
             </div>
             <div class="row">
                 <!-- Tambah Transaksi -->
@@ -1165,6 +1173,7 @@ $groupTransaksi = $transaksi->groupBy('jenis.id')->sort();
             });
 
             const transactions = @json($transaksi);
+
             const TIPE = {
                 PEMASUKAN: {{ $pemasukan ?? 1 }},
                 PENGELUARAN: {{ $pengeluaran ?? 2 }},
@@ -1257,11 +1266,11 @@ $groupTransaksi = $transaksi->groupBy('jenis.id')->sort();
                 $container.append(`
                     <div class="row">
                         <div class="col-md-6">
-                            ${renderItems(single.pemasukan, '', 'gradient-4')}
-                            ${renderItems(single.bantuan, '', 'gradient-7')}
+                            ${renderItems(single.pemasukan, 'Pemasukan', 'gradient-4')}
+                            ${renderItems(single.bantuan, 'Pemasukan', 'gradient-7')}
                         </div>
                         <div class="col-md-6">
-                            ${renderItems(single.pengeluaran, '', 'gradient-2')}
+                            ${renderItems(single.pengeluaran, 'Pengeluaran', 'gradient-2')}
                         </div>
                     </div>
                 `);
@@ -1290,6 +1299,53 @@ $groupTransaksi = $transaksi->groupBy('jenis.id')->sort();
             function formatNumber(num) {
                 return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
             }
+
+            const categoryBalances = {};
+
+            transactions.forEach(transaction => {
+                const category = transaction.kategori;
+                const nominal = parseInt(transaction.transaksi_sum_nominal);
+
+                if (!categoryBalances[category]) {
+                    categoryBalances[category] = 0;
+                }
+
+                if (transaction.id_tipe === TIPE.PEMASUKAN || transaction.id_tipe === TIPE.BANTUAN) {
+                    categoryBalances[category] += nominal;
+                } else if (transaction.id_tipe === TIPE.PENGELUARAN) {
+                    categoryBalances[category] -= nominal;
+                }
+            });
+
+            renderCategoryBalances(categoryBalances);
+
+            function renderCategoryBalances(balances) {
+                const $balanceContainer = $('#category-balance-container');
+                $balanceContainer.empty();
+
+                if (Object.keys(balances).length === 0) {
+                    $balanceContainer.append('<div class="alert alert-info">Tidak ada data saldo per kategori.</div>');
+                    return;
+                }
+
+                Object.keys(balances).forEach(category => {
+                    const balance = balances[category];
+                    const balanceClass = balance >= 0 ? 'bg-success' : 'bg-danger';
+
+                    const categoryHtml = `
+                        <div class="col-md-4">
+                            <div class="card ${balanceClass} text-white">
+                                <div class="card-body">
+                                    <h5 class="card-title">${category}</h5>
+                                    <h3 class="mb-0">Rp${formatNumber(balance)},-</h3>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    $balanceContainer.append(categoryHtml);
+                });
+            }
+
         });
 
         window.onload = function() {
