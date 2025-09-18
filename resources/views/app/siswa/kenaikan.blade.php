@@ -144,6 +144,7 @@
         const siswaCheckboxes = document.querySelectorAll('.siswa-checkbox');
         const prosesBtn = document.getElementById('prosesBtn');
         const keteranganInputs = document.querySelectorAll('.keterangan-input');
+
         function toggleProsesButton() {
             const anyChecked = Array.from(siswaCheckboxes).some(checkbox => checkbox.checked);
             const anyKeteranganFilled = Array.from(keteranganInputs).some(input => input.value.trim() !== '');
@@ -182,12 +183,10 @@
             toggleKeteranganInput(checkbox);
         });
 
-        // TAMBAHKAN INI: Buat event listener untuk setiap input keterangan
         keteranganInputs.forEach(input => {
-            input.addEventListener('keyup', toggleProsesButton); // Panggil fungsi setiap kali mengetik
+            input.addEventListener('keyup', toggleProsesButton);
         });
 
-        // Panggil fungsi saat halaman pertama kali dimuat
         toggleProsesButton();
     });
 </script>

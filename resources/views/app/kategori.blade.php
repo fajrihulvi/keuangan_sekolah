@@ -153,9 +153,7 @@
                                                                 class="form-control @error('id_tipe') is-invalid @enderror"
                                                                 name="id_tipe">
                                                                 @foreach ($jenis as $row)
-                                                                    <option <?php if (old('id_tipe') == $row->id) {
-                                                                        echo "selected='selected'";
-                                                                    } ?>
+                                                                    <option @selected($row->id === $k->id_tipe)
                                                                         value="{{ $row->id }}">
                                                                         {{ $row->tipe }}</option>
                                                                 @endforeach
@@ -180,7 +178,7 @@
                                                                 id="anggaran_{{ $k->id }}"
                                                                 class="form-control rupiah-input"
                                                                 placeholder="Anggaran .."
-                                                                value="{{ number_format($k->anggaran, 0, ',', '.') }}"
+                                                                value="{{ $k->anggaran }}"
                                                                 {{ $k->untuk_siswa == 'N' ? 'disabled' : '' }}>
                                                         </div>
 
