@@ -149,6 +149,11 @@
                     </ul>
                 </li>
                 @endif
+                <li>
+                    <a href="{{ route('kirim-pesan') }}" aria-expanded="false">
+                        <i class="icon-paper-plane menu-icon mr-3"></i><span class="nav-text">Kirim Pesan</span>
+                    </a>
+                </li>
                 <li class="mega-menu mega-menu-sm">
                     <a class="has-arrow" href="javascript:void()" aria-expanded="false">
                         <i class="icon-wallet menu-icon mr-3"></i><span class="nav-text">Laporan Keuangan</span>

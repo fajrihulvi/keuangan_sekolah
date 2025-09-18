@@ -94,6 +94,6 @@ Route::resource('potongan',PotonganController::class)->except('create','show','e
 Route::get('cetak-gaji',[GajiController::class,'cetakGaji'])->name('gaji.cetak');
 Route::get('cetak-gaji/cetak',[GajiController::class,'printGaji'])->name('gaji.print');
 // Route::get('kirim-pesan',[HomeController::class,'kirimPesan'])->name('kirim-pesan');
-// Route::post('kirim-pesan',[HomeController::class,'sendWhatsapp'])->name('whatsapp.send');
 Route::post('check-tunjangan',[HomeController::class,'checkTunjangan'])->name('api.check-tunjangan');
 Route::get('kirim-pesan',[HomeController::class,'sendMessage'])->name('kirim-pesan');
+Route::post('kirim-pesan',[HomeController::class,'sendWhatsapp'])->name('whatsapp.send');

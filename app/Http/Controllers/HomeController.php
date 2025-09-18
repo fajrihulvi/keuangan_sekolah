@@ -171,9 +171,9 @@ class HomeController extends Controller
             'untuk_siswa' => 'required|in:N,Y',
             'anggaran' => 'nullable',
         ]);
-        $req->merge([
+        $req->anggaran != null ? $req->merge([
             'anggaran' => preg_replace('/\D/', '', $req->anggaran),
-        ]);
+        ]): 0;
         // dd($req->all());
         $kategori = Kategori::find($id);
         if (!$kategori) {
@@ -679,4 +679,7 @@ class HomeController extends Controller
         return view('app.kirim-pesan',compact('kelas','data'));
     }
 
+    public function sendWhatsapp(Request $request){
+        return back();
+    }
 }
