@@ -9,7 +9,7 @@
         <label class="text-dark">{{ $label }}</label>
         <input id="{{ $name }}_input" type="{{ $type }}" placeholder="Masukan {{ Str::lower($label) }}..."
             class="form-control w-100 @error($name) is-invalid @enderror" name="{{ $name }}"
-            value="{{ old($name,$value) }}" autocomplete="off">
+            value="{!! old($name,$value) !!}" autocomplete="off">
         @error($name)
             <span class="invalid-feedback" role="alert">
                 <strong>{{ $message }}</strong>

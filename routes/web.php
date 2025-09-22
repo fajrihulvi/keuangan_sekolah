@@ -59,7 +59,7 @@ Route::delete('/user/delete/{id}', 'HomeController@user_delete')->name('user.del
 
 Route::get('/laporan', 'HomeController@laporan')->name('laporan');
 Route::get('/laporan/pdf', 'HomeController@laporan_pdf')->name('laporan_pdf');
-// Route::get('/laporan/excel', 'HomeController@laporan_excel')->name('laporan_excel');
+Route::get('/laporan/excel', 'HomeController@laporan_excel')->name('laporan_excel');
 Route::get('/laporan/print', 'HomeController@laporan_print')->name('laporan_print');
 
 Route::resource('/siswa',App\Http\Controllers\SiswaController::class)->except('show');
@@ -88,12 +88,16 @@ Route::get('dashboard-export',[HomeController::class,'exportDashboard'])->name('
 
 Route::get('gaji/rekap', [HomeController::class,'rekapGaji'])->name("gaji.rekap");
 Route::get('gaji/rekap/download', [HomeController::class,'exportGaji'])->name("gaji.rekap.export");
+
 Route::resource('gaji', GajiController::class);
+Route::get('laporan-gaji', [GajiController::class,'laporanGaji'])->name('laporan-gaji');
+Route::get('export-gaji', [GajiController::class,'exportGaji'])->name('laporan-gaji.export');
 Route::resource('siswa/kenaikan', KenaikanKelasController::class)->only(['index','store']);
 Route::resource('potongan',PotonganController::class)->except('create','show','edit');
 Route::get('cetak-gaji',[GajiController::class,'cetakGaji'])->name('gaji.cetak');
 Route::get('cetak-gaji/cetak',[GajiController::class,'printGaji'])->name('gaji.print');
 // Route::get('kirim-pesan',[HomeController::class,'kirimPesan'])->name('kirim-pesan');
 Route::post('check-tunjangan',[HomeController::class,'checkTunjangan'])->name('api.check-tunjangan');
+
 Route::get('kirim-pesan',[HomeController::class,'sendMessage'])->name('kirim-pesan');
 Route::post('kirim-pesan',[HomeController::class,'sendWhatsapp'])->name('whatsapp.send');

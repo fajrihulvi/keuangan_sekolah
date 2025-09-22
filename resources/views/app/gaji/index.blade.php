@@ -212,23 +212,6 @@ Carbon::setLocale('id');
                                 </tr>
                             </thead>
                             <tbody>
-                                @php
-                                    $currentMonth = date('n');
-                                    $months = [
-                                        '1' => __('Januari'),
-                                        '2' => __('Februari'),
-                                        '3' => __('Maret'),
-                                        '4' => __('April'),
-                                        '5' => __('Mei'),
-                                        '6' => __('Juni'),
-                                        '7' => __('Juli'),
-                                        '8' => __('Agustus'),
-                                        '9' => __('September'),
-                                        '10' => __('Oktober'),
-                                        '11' => __('November'),
-                                        '12' => __('Desember'),
-                                    ];
-                                @endphp
                                 @foreach ($data as $t)
                                     <tr>
                                         <td class="text-center">{{ $loop->iteration }}</td>
@@ -322,17 +305,12 @@ Carbon::setLocale('id');
                                                                         <label
                                                                             for="pegawai_{{ $t->id }}">Pegawai</label>
                                                                         <select
-                                                                            class="form-control js-example-basic-single"
+                                                                            class="form-control pegawai-readonly"
                                                                             id="pegawai_{{ $t->id }}"
                                                                             required="required" name="pegawai">
                                                                             <option value="">--- Pilih Pegawai ---
                                                                             </option>
-                                                                            @foreach ($pegawai as $item)
-                                                                                <option value="{{ $item->id }}"
-                                                                                    @selected($t->id_pegawai == $item->id)>
-                                                                                    {{ $item->nama }}
-                                                                                </option>
-                                                                            @endforeach
+                                                                            <option value="{{ $t->id_pegawai }}">{{ $t->pegawai->nama }}</option>
                                                                         </select>
                                                                     </div>
 
@@ -690,6 +668,17 @@ Carbon::setLocale('id');
                     // dropdownCssClass: 'form-control',
                     theme: "bootstrap4",
                 });
+
+                $("#" + modalId + " .pegawai-readonly").select2({
+                    width: "100%",
+                    placeholder: "--- Pilih Opsi ---",
+                    allowClear: true,
+                    disabled:true,
+                    dropdownParent: $("#" + modalId),
+                    // dropdownCssClass: 'form-control',
+                    theme: "bootstrap4",
+                });
+
             });
 
             // $('.tambah-pemasukan-btn').on('click', function() {

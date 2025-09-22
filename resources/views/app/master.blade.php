@@ -159,10 +159,11 @@
                         <i class="icon-wallet menu-icon mr-3"></i><span class="nav-text">Laporan Keuangan</span>
                     </a>
                     <ul aria-expanded="false">
-                        <li><a href="{{ route('laporan') }}">Laporan Keuangan</a></li>
-                        <li><a href="{{ route('laporan-kelas.index') }}">Laporan per Kelas</a></li>
                         <li><a href="{{ route('transaksi') }}">Transaksi Siswa</a></li>
                         <li><a href="{{ route('gaji.index') }}">Gaji Pegawai</a></li>
+                        <li><a href="{{ route('laporan') }}">Laporan Keuangan</a></li>
+                        <li><a href="{{ route('laporan-kelas.index') }}">Laporan per Kelas</a></li>
+                        <li><a href="{{ route('laporan-gaji') }}">Laporan Gaji</a></li>
                     </ul>
                 </li>
                 <li class="mega-menu mega-menu-sm">

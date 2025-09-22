@@ -162,7 +162,7 @@
                                                         <x-forms.input name="nama" label="Nama Pegawai"
                                                             value="{{ $row->nama }}" />
                                                         <x-forms.input name="jabatan" label="Jabatan"
-                                                            value="{{ $row->jabatan }}" />
+                                                            value="{{ $row->jabatan->nama }}" />
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-default"

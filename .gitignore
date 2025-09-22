@@ -20,3 +20,4 @@ yarn-error.log
 .data.txt
 .htaccess
 Archive.zip
+storage/logs/laravel.log

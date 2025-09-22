@@ -1,3 +1,7 @@
+@php
+
+Carbon\Carbon::setLocale('id');
+@endphp
 @extends('app.master')
 
 @section('css')
@@ -46,7 +50,7 @@
                                 <select class="form-control" name="bulan" id="bulan">
                                     <option value="">Semua</option>
                                     @for ($i = 1; $i <= 12; $i++)
-                                        <option value="{{ $i }}">
+                                        <option value="{{ $i }}" @selected($i == (int) request()->input('bulan'))>
                                             {{ \Carbon\Carbon::create()->month($i)->translatedFormat('F') }}
                                         </option>
                                     @endfor
@@ -54,14 +58,17 @@
                             </div>
                             <div class="col-md-2">
                                 <label>Tahun</label>
-                                <select class="form-control" name="tahun" id="tahun">
+                                <input id="tahun" type="number" placeholder="Masukkan tahun"
+                                    class="form-control"
+                                    name="tahun"  autocomplete="off" value="{{ date('Y') }}">
+                                {{-- <select class="form-control" name="tahun" id="tahun">
                                     <option value="">Semua</option>
                                     @foreach (range(date('Y'), date('Y') - 10) as $tahun)
                                         <option value="{{ $tahun }}">
                                             {{ $tahun }}
                                         </option>
                                     @endforeach
-                                </select>
+                                </select> --}}
                             </div>
                             <div class="col-md-2">
                                 <label>Tanggal (Opsional)</label>
@@ -290,13 +297,17 @@
                 $tanggalSelect.empty().append('<option value="">Semua</option>');
 
                 if (tahun && bulan) {
+                    const currentDay = '<?php echo request()->input('tanggal', ''); ?>';
                     let daysInMonth = new Date(tahun, bulan, 0).getDate();
                     for (let i = 1; i <= daysInMonth; i++) {
-                        $tanggalSelect.append(`<option value="${i}">${i}</option>`);
+                        $tanggalSelect.append(`<option value="${i}" ${currentDay == i ? 'selected':''} >${i}</option>`);
                     }
                 }
             }
 
+            @if (request()->has('tanggal'))
+                updateDays();
+            @endif
             $("#bulan, #tahun").change(updateDays);
 
             @isset($data)
@@ -330,6 +341,7 @@
                 width: '100%',
                 placeholder: '--- Pilih Kelas ---',
                 allowClear: true,
+                theme: "bootstrap4",
                 // dropdownParent: $('#exampleModal')
             }).addClass("form-control");
 
@@ -337,20 +349,23 @@
                 width: '100%',
                 placeholder: '--- Pilih Siswa ---',
                 allowClear: true,
+                theme: "bootstrap4",
                 // dropdownParent: $('#exampleModal')
             }).addClass("form-control");
 
-            $('#tahun').select2({
-                width: '100%',
-                placeholder: '--- Pilih Tahun ---',
-                allowClear: true,
-                // dropdownParent: $('#exampleModal')
-            }).addClass("form-control");
+            // $('#tahun').select2({
+            //     width: '100%',
+            //     placeholder: '--- Pilih Tahun ---',
+            //     allowClear: true,
+            //     theme: "bootstrap4",
+            //     // dropdownParent: $('#exampleModal')
+            // }).addClass("form-control");
 
             $('#bulan').select2({
                 width: '100%',
                 placeholder: '--- Pilih Bulan ---',
                 allowClear: true,
+                theme: "bootstrap4",
                 // dropdownParent: $('#exampleModal')
             }).addClass("form-control");
 
@@ -358,6 +373,7 @@
                 width: '100%',
                 placeholder: '--- Pilih Tanggal ---',
                 allowClear: true,
+                theme: "bootstrap4",
                 // dropdownParent: $('#exampleModal')
             }).addClass("form-control");
 

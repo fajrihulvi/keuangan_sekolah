@@ -43,7 +43,6 @@
       <div class="card-body">
 
         <form method="GET" action="{{ route('laporan') }}">
-          @csrf
           <div class="row">
 
             <div class="col-lg-offset-2 col-lg-2">
@@ -143,6 +142,7 @@
             <br>
             <a target="_BLANK" href="{{ route('laporan_pdf',['kategori' => $_GET['kategori'], 'dari' => $_GET['dari'], 'sampai' => $_GET['sampai']]) }}" class="btn btn-outline-secondary"><i class="fa fa-file-pdf-o "></i> &nbsp; CETAK PDF</a>
             <a target="_BLANK" href="{{ route('laporan_print',['kategori' => $_GET['kategori'], 'dari' => $_GET['dari'], 'sampai' => $_GET['sampai']]) }}" class="btn btn-outline-secondary"><i class="fa fa-print "></i> &nbsp; CETAK PRINT</a>
+            <a target="_BLANK" href="{{ route('laporan_excel',['kategori' => $_GET['kategori'], 'dari' => $_GET['dari'], 'sampai' => $_GET['sampai']]) }}" class="btn btn-outline-secondary"><i class="icon-notebook menu-icon "></i> &nbsp; EKSPORT EXCEL</a>
             <br>
             <br>
             <br>

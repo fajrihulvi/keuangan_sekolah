@@ -41,11 +41,6 @@
             <colgroup>
                 <col style="width: 40%;">  <col style="width: 5%;">   <col style="width: 55%;">
             </colgroup>
-            <tr>
-                <td colspan="3">Tunjangan Jabatan</td>
-                <td>:</td>
-                <td>{{ $data->kafalah['Tunjangan Jabatan'] ? 'Rp'.number_format($data->kafalah['Tunjangan Jabatan'],0,',','.') : 'Rp0' }}</td>
-            </tr>
             @foreach ($kafalah as $row)
                 @php
                     $amount = $data->kafalah[$row->nama] ?? null;
@@ -95,15 +90,15 @@
                 <td class="text-center">Pangkalpinang, {{ Carbon\Carbon::now()->locale('id')->translatedFormat('d F Y') }}</td>
             </tr>
             <tr>
-                <td class="text-center">Yang Menerima</td>
+                <td class="text-center">Yang Mengetahui</td>
             </tr>
             <tr>
                 <td class="d-flex justify-content-center" style="height: 60px;">
-                    <img src="{{ asset('storage/' . Auth::user()->signature) }}" alt="{{ Auth::user()->name }}" style="max-height: 100%;">
+                    <img src="{{ asset('storage/signatures/ttd-dody.jpeg') }}" alt="{{ Auth::user()->name }}" style="max-height: 100%;">
                 </td>
             </tr>
             <tr>
-                <td class="text-center"><b>{{ Auth::user()->name }}</b></td>
+                <td class="text-center"><b>H.Dody Kusdian, S.T., M.H</b></td>
             </tr>
         </table>
     </div>

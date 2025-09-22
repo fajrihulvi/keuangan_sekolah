@@ -304,7 +304,7 @@ $groupTransaksi = $transaksi->groupBy('jenis.id')->sort();
                     </div>
                 </div>
                 <div class="col-lg-4 col-sm-12">
-                    <div class="card gradient-10">
+                    <div class="card gradient-1">
                         <div class="card-body">
                             <h3 class="card-title text-white">Bantuan Bulan Ini</h3>
                             <div class="d-inline-block">
@@ -430,7 +430,7 @@ $groupTransaksi = $transaksi->groupBy('jenis.id')->sort();
                             <div class="modal-body">
                                 <form action="{{ route('transaksi.aksi') }}" method="post">
                                     @csrf
-
+                                    <input type="hidden" name="home" value="1">
                                     <div id="transaksi-container">
                                         <div class="transaksi-item">
                                             <div class="transaksi-wrapper">

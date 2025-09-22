@@ -71,17 +71,12 @@ Carbon\Carbon::setLocale('id');
                             <th scope="col">Nominal</th>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td scope="row">1</td>
-                                <td>TUNJANGAN JABATAN</td>
-                                <td class="text-align-center">{{ isset($data->kafalah['Tunjangan Jabatan']) ? 'Rp' . number_format($data->kafalah['Tunjangan Jabatan'],0,',','.') :'-' }}</td>
-                            </tr>
                             @foreach ($pemasukan as $item)
                                 @php
                                     $amount = $data->kafalah[$item->nama] ?? null;
                                 @endphp
                                 <tr>
-                                    <td scope="row">{{ $loop->iteration + 1 }}</td>
+                                    <td scope="row">{{ $loop->iteration }}</td>
                                     <td>{{ Str::upper($item->nama) }}</td>
                                     <td class="text-align-center">{{ $amount ? 'Rp' . number_format($amount,0,',','.') :'-' }}</td>
                                 </tr>

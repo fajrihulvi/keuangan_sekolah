@@ -43,45 +43,45 @@
             </div>
         </div>
         @isset($data)
-            <div class="container-fluid">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between">
-                            <h4>Kelas {{ request()->search }}</h4>
-                            <button type="button" class="btn btn-primary" id="kirim-pesan" data-toggle="modal"
-                                data-target="#modal-kirim">Kirim</button>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table table-bordered" id="table-datatable">
-                                <thead>
-                                    <tr>
-                                        <th width="1%"><input type="checkbox" name="" id="check-all"></th>
-                                        {{-- <th width="1%">NO</th> --}}
-                                        <th>Nama Siswa</th>
-                                        <th>Nama Orang Tua</th>
-                                        <th>Nomor Handphone</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($data as $row)
+            <form method="POST" enctype="multipart/form-data">
+                <div class="container-fluid">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <h4>Kelas {{ request()->search }}</h4>
+                                <button type="button" class="btn btn-primary" id="kirim-pesan" data-toggle="modal"
+                                    data-target="#modal-kirim">Kirim</button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="table-datatable">
+                                    <thead>
                                         <tr>
-                                            <td width="1%"><input type="checkbox" class="check-siswa" name="ids_siswa[]"
-                                                    value="{{ $row->id }}"></td>
-                                            {{-- <td width="1%">{{ $loop->iteration }}</td> --}}
-                                            <td>{{ $row->nama_lengkap }}</td>
-                                            <td>{{ $row->nama_orangtua }}</td>
-                                            <td>{{ $row->nohp_orangtua }}</td>
+                                            <th width="1%"><input type="checkbox" name="" id="check-all"></th>
+                                            {{-- <th width="1%">NO</th> --}}
+                                            <th>Nama Siswa</th>
+                                            <th>Nama Orang Tua</th>
+                                            <th>Nomor Handphone</th>
                                         </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($data as $row)
+                                            <tr>
+                                                <td width="1%"><input type="checkbox" class="check-siswa" name="whatsapp[]"
+                                                        value="{{ $row->nohp_orangtua }}"></td>
+                                                {{-- <td width="1%">{{ $loop->iteration }}</td> --}}
+                                                <td>{{ $row->nama_lengkap }}</td>
+                                                <td>{{ $row->nama_orangtua }}</td>
+                                                <td>{{ $row->nohp_orangtua }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <form method="POST">
-                <div class="modal fade" id="modal-kirim" tabindex="-1" role="dialog"
-                    aria-labelledby="modal-kirim-label" aria-hidden="true">
+                <div class="modal fade" id="modal-kirim" tabindex="-1" role="dialog" aria-labelledby="modal-kirim-label"
+                    aria-hidden="true">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -92,6 +92,10 @@
                             </div>
                             <div class="modal-body">
                                 @csrf
+                                <div class="form-group">
+                                    <label for="exampleFormControlFile1">Image upload</label>
+                                    <input type="file" class="form-control-file" id="exampleFormControlFile1" name="image_file" required>
+                                </div>
                                 <textarea class="form-control" name="pesan" required placeholder="Masukkan pesan yang akan dikirim .."></textarea>
                             </div>
                             <div class="modal-footer">
@@ -117,26 +121,26 @@
             const $checkAll = $('#check-all');
             const $eachRowCheck = $('.check-siswa');
 
-            $btnKirim.prop('disabled',true);
+            $btnKirim.prop('disabled', true);
 
-            function toggleKirimButton(){
-                if($eachRowCheck.is(':checked')){
-                    $btnKirim.prop('disabled',false);
-                }else{
-                    $btnKirim.prop('disabled',true);
+            function toggleKirimButton() {
+                if ($eachRowCheck.is(':checked')) {
+                    $btnKirim.prop('disabled', false);
+                } else {
+                    $btnKirim.prop('disabled', true);
                 }
             }
 
-            $checkAll.on('click',function(){
-                $eachRowCheck.prop('checked',$(this).prop('checked'));
+            $checkAll.on('click', function() {
+                $eachRowCheck.prop('checked', $(this).prop('checked'));
                 toggleKirimButton();
             });
 
-            $eachRowCheck.on('click',function(){
-                if($eachRowCheck.length === $eachRowCheck.filter(':checked').length){
-                    $checkAll.prop('checked',true);
-                }else{
-                    $checkAll.prop('checked',false);
+            $eachRowCheck.on('click', function() {
+                if ($eachRowCheck.length === $eachRowCheck.filter(':checked').length) {
+                    $checkAll.prop('checked', true);
+                } else {
+                    $checkAll.prop('checked', false);
                 }
                 toggleKirimButton();
             })

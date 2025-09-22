@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\DashboardExport;
+use App\Exports\LaporanExport;
 use App\Imports\SiswaImport;
 use Illuminate\Http\Request;
 
@@ -27,6 +28,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File as FacadesFile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\FromView;
@@ -300,6 +302,23 @@ class HomeController extends Controller
 
             DB::commit();
 
+            if ($req->has('home') && count($req->id_siswa) > 0) {
+                $lastIndex = count($req->id_siswa) - 1;
+
+                if (isset($req->tanggal[$lastIndex]) && isset($req->id_siswa[$lastIndex])) {
+                    $date = Carbon::parse($req->tanggal[$lastIndex]);
+
+                    $idSiswaTerakhir = $req->id_siswa[$lastIndex];
+
+                    return redirect()->route('kwetansi.index', [
+                        'siswa' => $idSiswaTerakhir,
+                        'bulan' => $date->month,
+                        'tahun' => $date->year,
+                        'tanggal' => $date->day,
+                    ]);
+                }
+            }
+
             return redirect()->back()->with('success', 'Semua transaksi berhasil disimpan!');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -383,10 +402,11 @@ class HomeController extends Controller
         }
     }
 
-    // public function laporan_excel()
-    // {
-    //     return Excel::download(new LaporanExport, 'Laporan.xlsx');
-    // }
+    public function laporan_excel(Request $request)
+    {
+
+        return Excel::download(new LaporanExport($request), 'Laporan.xlsx');
+    }
 
     public function laporan_pdf()
     {
@@ -679,7 +699,41 @@ class HomeController extends Controller
         return view('app.kirim-pesan',compact('kelas','data'));
     }
 
-    public function sendWhatsapp(Request $request){
-        return back();
+    public function sendWhatsapp(Request $request)
+    {
+        $request->validate([
+            'pesan' => 'required|string|max:255',
+            'whatsapp' => 'required|array',
+            'image_file' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
+        $no_whatsapps = [];
+        foreach ($request->whatsapp as $index => $whatsapp) {
+            if ($whatsapp != '-' || $whatsapp != '') {
+                $no_whatsapps[$index] = preg_replace('/^0/', '62', str_replace('-', '', $whatsapp));
+            }
+        }
+        $image = $request->file('image_file');
+        $fileContent = file_get_contents($image->getRealPath());
+        $data = [
+            'phone' => implode(',', $no_whatsapps),
+            'caption' => $request->pesan,
+            'file' => base64_encode($fileContent),
+            'data' => json_encode($_FILES['image_file']),
+        ];
+        try {
+            $auth = env('WABLAS_TOKEN').'.'.env('WABLAS_SECRET_KEY');
+            $url = env('WABLAS_URL').'api/send-image-from-local';
+            Http::withHeaders([
+                'Authorization' => $auth,
+            ])
+                ->withoutVerifying()
+                ->post($url, $data);
+
+                return back()->with('success','Berhasil mengirim pesan');
+        } catch (\Exception $e) {
+
+            Log::error($e->getMessage());
+            return back()->with('error','Gagal mengirim pesan');
+        }
     }
 }

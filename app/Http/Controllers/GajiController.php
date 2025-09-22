@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\GajiExport;
 use App\Models\Gaji;
 use App\Models\Jabatan;
 use App\Models\Kafalah;
 use App\Models\Pegawai;
 use App\Models\Potongan;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class GajiController extends Controller
 {
@@ -221,4 +224,25 @@ class GajiController extends Controller
         $potongan = Potongan::all();
         return view('app.gaji.cetak',compact('data','kafalah','potongan'));
     }
+
+    public function laporanGaji(Request $request){
+        if($request->has(['bulan','tahun'])){
+            $data = Gaji::with('pegawai')
+            ->where('bulan', $request->bulan)
+            ->where('tahun', $request->tahun)
+            ->get();
+
+            $kafalah = Kafalah::get();
+            $potongan = Potongan::get();
+            // dd($data[29]);
+            return view('app.laporan-gaji',compact('data','kafalah','potongan'));
+        }
+        return view('app.laporan-gaji');
+    }
+
+    public function exportGaji(Request $request){
+        $bulan = Carbon::createFromDate(null,$request->input('bulan'),null)->getTranslatedMonthName();
+        return Excel::download(new GajiExport($request), "Laporan Gaji ". $bulan." ". $request->input('tahun') .".xlsx");
+    }
 }
+
