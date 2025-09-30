@@ -161,8 +161,14 @@
                                                         @csrf
                                                         <x-forms.input name="nama" label="Nama Pegawai"
                                                             value="{{ $row->nama }}" />
-                                                        <x-forms.input name="jabatan" label="Jabatan"
-                                                            value="{{ $row->jabatan->nama }}" />
+                                                        <select class="form-control select2 @error('id_jabatan') is-invalid @enderror"
+                                                            name="id_jabatan" id="jabatan-select">
+                                                            <option value=""></option>
+                                                            @foreach ($jabatan as $item)
+                                                                <option value="{{ $item->id }}" @selected($row->id_jabatan == $item->id)>
+                                                                    {{ $item->nama }}</option>
+                                                            @endforeach
+                                                        </select>
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-default"
@@ -193,6 +199,16 @@
                 placeholder: "--- Pilih Opsi ---",
                 allowClear: true,
                 dropdownParent: $('#exampleModal'),
+            });
+            $('[id^=update_user_]').on('shown.bs.modal', function() {
+                var modalId = $(this).attr('id');
+                $("#" + modalId + " .select2").select2({
+                    width: "100%",
+                    placeholder: "--- Pilih Opsi ---",
+                    allowClear: true,
+                    dropdownParent: $("#" + modalId),
+                    theme:'bootstrap4'
+                });
             });
         })
     </script>

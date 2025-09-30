@@ -40,11 +40,12 @@ class PegawaiController extends Controller
     {
         $request->validate([
             'nama' => 'required|string|max:50',
-            'jabatan' => 'required|string'
+            'id_jabatan' => 'required|exists:jabatan,id'
         ]);
-
         $pegawai = Pegawai::find($id);
         $pegawai->update($request->all());
+
+        $pegawai = Pegawai::find($id);
         return back()->with('success','Berhasil mempebarui data.');
     }
 

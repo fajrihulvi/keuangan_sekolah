@@ -36,7 +36,8 @@ class GajiController extends Controller
         $kafalah = Kafalah::all();
         $potongan = Potongan::all();
         // dd($data[3]->potongan['Menikah']);
-        return view('app.gaji.index', compact('data', 'pegawai', 'kafalah', 'potongan'));
+        $jabatan = Jabatan::get();
+        return view('app.gaji.index', compact('data', 'pegawai', 'kafalah', 'potongan','jabatan'));
     }
 
     public function store(Request $request)
@@ -130,12 +131,15 @@ class GajiController extends Controller
             // 'potongan-nominal.*' => 'string',
             'bulan' => 'required|integer|between:1,12',
             'tahun' => 'required|integer|min:2000|max:2100',
+            'jabatan' => 'required|exists:jabatan,id',
+            'nominal-jabatan'=>'required',
         ]);
-        // dd($request->all(),$position->tunjangan);
         DB::beginTransaction();
+        // dd($request->all());
         try {
             $employee = Pegawai::select('id', 'id_jabatan')->findOrFail($req['pegawai']);
-            $position = Jabatan::findOrFail($employee->id_jabatan);
+            $position = Jabatan::findOrFail($req['jabatan']);
+            // dd($position);
             $gaji = Gaji::findOrFail($id);
             $grossSalaryNominal = 0;
             $dedictionsNominal = 0;
@@ -162,7 +166,7 @@ class GajiController extends Controller
                 $deductions[$deduction->nama] = $nominal;
                 $dedictionsNominal += $nominal;
             }
-            $grossSalary['Tunjangan Jabatan'] = $position->tunjangan;
+            $grossSalary['Tunjangan Jabatan'] = (int) preg_replace('/\D/', '', $req['nominal-jabatan']);;
             $grossSalaryNominal += $position->tunjangan;
             $cleanedAmount =  $grossSalaryNominal - $dedictionsNominal;
 

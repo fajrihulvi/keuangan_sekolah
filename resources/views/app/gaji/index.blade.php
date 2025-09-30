@@ -217,7 +217,8 @@ Carbon::setLocale('id');
                                         <td class="text-center">{{ $loop->iteration }}</td>
                                         <td class="text-center">{{ $t->pegawai->nama }}</td>
                                         <td class="text-center">{{ $t->pegawai->jabatan->nama }}</td>
-                                        <td class="text-center">{{ Carbon::parse()->month($t->bulan)->translatedFormat('F') }}</td>
+                                        <td class="text-center">
+                                            {{ Carbon::parse()->month($t->bulan)->translatedFormat('F') }}</td>
                                         <td class="text-center">{{ $t->tahun }}</td>
                                         <td class="text-center">
                                             {{ 'Rp' . number_format($t->total_pemasukan, 0, ',', '.') }}
@@ -306,13 +307,17 @@ Carbon::setLocale('id');
                                                                             for="pegawai_{{ $t->id }}">Pegawai</label>
                                                                         <select
                                                                             class="form-control pegawai-readonly"
-                                                                            id="pegawai_{{ $t->id }}"
-                                                                            required="required" name="pegawai">
+                                                                            id="pegawai_{{ $t->id }}" disabled
+                                                                            required="required">
                                                                             <option value="">--- Pilih Pegawai ---
                                                                             </option>
-                                                                            <option value="{{ $t->id_pegawai }}">{{ $t->pegawai->nama }}</option>
+                                                                            <option value="{{ $t->id_pegawai }}"
+                                                                                @selected(true)>
+                                                                                {{ $t->pegawai->nama }}</option>
                                                                         </select>
                                                                     </div>
+
+                                                                    <input type="hidden" name="pegawai" value="{{ $t->id_pegawai }}">
 
                                                                     <div class="row my-2">
                                                                         <div class="col">
@@ -359,15 +364,22 @@ Carbon::setLocale('id');
                                                                                                 </div>
                                                                                             </div>
                                                                                         @else
-                                                                                            <div class="input-group mb-2">
+                                                                                            <div class="input-group mb-2 ">
                                                                                                 <select
-                                                                                                    class="form-control" disabled>
-                                                                                                    <option>{{ $t->pegawai->jabatan->nama }}
-                                                                                                    </option>
+                                                                                                    class="form-control js-example-basic-single"
+                                                                                                    name="jabatan">
+                                                                                                    @foreach ($jabatan as $item)
+                                                                                                        <option
+                                                                                                            @selected($t->pegawai->id_jabatan == $item->id)
+                                                                                                            value="{{ $item->id }}">
+                                                                                                            {{ $item->nama }}
+                                                                                                        </option>
+                                                                                                    @endforeach
                                                                                                 </select>
                                                                                                 <input type="text"
-                                                                                                    class="form-control nominal" disabled
+                                                                                                    class="form-control nominal"
                                                                                                     placeholder="Masukkan nominal..."
+                                                                                                    name="nominal-jabatan"
                                                                                                     value="{{ $nominal }}"
                                                                                                     autocomplete="off">
                                                                                                 <div
@@ -661,7 +673,7 @@ Carbon::setLocale('id');
                 var modalId = $(this).attr('id');
                 console.log(modalId)
                 $("#" + modalId + " .js-example-basic-single").select2({
-                    width: "100%",
+                    // width: "100%",
                     placeholder: "--- Pilih Opsi ---",
                     allowClear: true,
                     dropdownParent: $("#" + modalId),
@@ -672,12 +684,19 @@ Carbon::setLocale('id');
                 $("#" + modalId + " .pegawai-readonly").select2({
                     width: "100%",
                     placeholder: "--- Pilih Opsi ---",
-                    allowClear: true,
-                    disabled:true,
+                    // disabled:true,
                     dropdownParent: $("#" + modalId),
                     // dropdownCssClass: 'form-control',
                     theme: "bootstrap4",
                 });
+
+                const $jabatan = @json($jabatan);
+
+                $('[name=jabatan]').on('change', function() {
+                    let idJabatan = $(this).val();
+                    let nominalJabatan = $jabatan.find((item) => idJabatan == item.id).tunjangan;
+                    $('[name=nominal-jabatan]').val(nominalJabatan);
+                })
 
             });
 
