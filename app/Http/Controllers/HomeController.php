@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Exports\DashboardExport;
 use App\Exports\LaporanExport;
+use App\Exports\DashboardExport;
+use App\Exports\LaporanExport;
 use App\Imports\SiswaImport;
 use Illuminate\Http\Request;
 
@@ -18,10 +20,19 @@ use PDF;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\Controller;
 use App\Models\Jabatan;
+use App\Models\Jabatan;
 use App\Models\Jenis;
 use App\Models\Kelas;
 use App\Models\Pegawai;
+use App\Models\Pegawai;
 use App\Models\Siswa;
+use Carbon\Carbon;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File as FacadesFile;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -52,6 +63,7 @@ class HomeController extends Controller
      * @return \Illuminate\Contracts\Support\Renderable
      */
     public function index(Request $request)
+    public function index(Request $request)
     {
         $kategori = Kategori::all();
         $tanggal = date('Y-m-d');
@@ -73,30 +85,78 @@ class HomeController extends Controller
         }
 
         $pemasukan_hari_ini = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pemasukan)->whereDate('tanggal', $tanggal)->first();
+        $pemasukan_hari_ini = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pemasukan)->whereDate('tanggal', $tanggal)->first();
 
+        $pemasukan_bulan_ini = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pemasukan)->whereMonth('tanggal', $bulan)->first();
         $pemasukan_bulan_ini = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pemasukan)->whereMonth('tanggal', $bulan)->first();
 
         $pemasukan_tahun_ini = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pemasukan)->whereYear('tanggal', $tahun)->first();
+        $pemasukan_tahun_ini = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pemasukan)->whereYear('tanggal', $tahun)->first();
 
+        $seluruh_pemasukan = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pemasukan)->first();
         $seluruh_pemasukan = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pemasukan)->first();
 
         $pengeluaran_hari_ini = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pengeluaran)->whereDate('tanggal', $tanggal)->first();
+        $pengeluaran_hari_ini = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pengeluaran)->whereDate('tanggal', $tanggal)->first();
 
+        $pengeluaran_bulan_ini = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pengeluaran)->whereMonth('tanggal', $bulan)->first();
         $pengeluaran_bulan_ini = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pengeluaran)->whereMonth('tanggal', $bulan)->first();
 
         $pengeluaran_tahun_ini = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pengeluaran)->whereYear('tanggal', $tahun)->first();
+        $pengeluaran_tahun_ini = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pengeluaran)->whereYear('tanggal', $tahun)->first();
 
+        $seluruh_pengeluaran = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pengeluaran)->first();
         $seluruh_pengeluaran = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pengeluaran)->first();
 
         $bantuan_hari_ini = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $bantuan)->whereDate('tanggal', $tanggal)->first();
+        $bantuan_hari_ini = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $bantuan)->whereDate('tanggal', $tanggal)->first();
 
+        $bantuan_bulan_ini = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $bantuan)->whereMonth('tanggal', $bulan)->first();
         $bantuan_bulan_ini = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $bantuan)->whereMonth('tanggal', $bulan)->first();
 
         $bantuan_tahun_ini = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $bantuan)->whereYear('tanggal', $tahun)->first();
+        $bantuan_tahun_ini = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $bantuan)->whereYear('tanggal', $tahun)->first();
 
+        $seluruh_bantuan = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $bantuan)->first();
         $seluruh_bantuan = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $bantuan)->first();
 
         $kategori_filter = $kategori;
+        if (isset($_GET['kategori'])) {
+            $kategori_filter = Kategori::where('id_tipe', $_GET['kategori'])->get();
+            if (!$kategori_filter) {
+                $kategori_filter = $kategori;
+            }
+        }
+
+        // $transaksi = Transaksi::join('kategori','transaksi.kategori_id = kategori.id')->groupBy('kategori_id')->selectRaw('kategori, SUM(nominal) as total')->get();
+        $transaksi = Kategori::query()
+            ->select(['id', 'kategori', 'id_tipe'])
+            ->with('jenis')
+            ->withSum(['transaksi'], 'nominal')
+            ->orderBy('kategori')
+            ->get()
+            // ->groupBy('kategori')
+            // ->pluck('kategori')
+            ;
+            // dd($transaksi);
+        return view('app.index', [
+            'pemasukan_hari_ini' => $pemasukan_hari_ini,
+            'pemasukan_bulan_ini' => $pemasukan_bulan_ini,
+            'pemasukan_tahun_ini' => $pemasukan_tahun_ini,
+            'seluruh_pemasukan' => $seluruh_pemasukan,
+            'pengeluaran_hari_ini' => $pengeluaran_hari_ini,
+            'pengeluaran_bulan_ini' => $pengeluaran_bulan_ini,
+            'pengeluaran_tahun_ini' => $pengeluaran_tahun_ini,
+            'seluruh_pengeluaran' => $seluruh_pengeluaran,
+            'bantuan_hari_ini' => $bantuan_hari_ini,
+            'bantuan_bulan_ini' => $bantuan_bulan_ini,
+            'bantuan_tahun_ini' => $bantuan_tahun_ini,
+            'seluruh_bantuan' => $seluruh_bantuan,
+            'kategori' => $kategori,
+            'jenis' => $jenis,
+            'kategori_filter' => $kategori_filter,
+            'transaksi' => $transaksi,
+        ]);
         if (isset($_GET['kategori'])) {
             $kategori_filter = Kategori::where('id_tipe', $_GET['kategori'])->get();
             if (!$kategori_filter) {
@@ -138,20 +198,36 @@ class HomeController extends Controller
     public function kategori()
     {
         $kategori = Kategori::with('jenis')->orderBy('kategori', 'asc')->get();
+        $kategori = Kategori::with('jenis')->orderBy('kategori', 'asc')->get();
         $siswa = Siswa::all();
         $kelas = Kelas::all();
         $jenis = Jenis::all();
+        return view('app.kategori', compact('kategori', 'siswa', 'kelas', 'jenis'));
         return view('app.kategori', compact('kategori', 'siswa', 'kelas', 'jenis'));
     }
 
     public function kategori_aksi(Request $req)
     {
         $this->validate($req, [
+        $this->validate($req, [
             'kategori' => 'required',
             'id_tipe' => 'required|exists:jenis,id',
             'untuk_siswa' => 'required|in:N,Y',
             'anggaran' => 'nullable',
+            'untuk_siswa' => 'required|in:N,Y',
+            'anggaran' => 'nullable',
         ]);
+        $anggaran = $req->has('anggaran') ? preg_replace('/\D/', '', $req->anggaran) : 0;
+
+        // Jika bukan untuk siswa, set anggaran ke 0
+        $anggaran = $req->untuk_siswa == 'Y' ? $anggaran : 0;
+        Kategori::create([
+            'kategori' => $req->kategori,
+            'id_tipe' => $req->id_tipe,
+            'untuk_siswa' => $req->untuk_siswa,
+            'anggaran' => $anggaran
+        ]);
+        return redirect('kategori')->with('success', 'Kategori telah disimpan');
         $anggaran = $req->has('anggaran') ? preg_replace('/\D/', '', $req->anggaran) : 0;
 
         // Jika bukan untuk siswa, set anggaran ke 0
@@ -168,8 +244,11 @@ class HomeController extends Controller
     public function kategori_update($id, Request $req)
     {
         $this->validate($req, [
+        $this->validate($req, [
             'kategori' => 'required',
             'id_tipe' => 'required|exists:jenis,id',
+            'untuk_siswa' => 'required|in:N,Y',
+            'anggaran' => 'nullable',
             'untuk_siswa' => 'required|in:N,Y',
             'anggaran' => 'nullable',
         ]);
@@ -177,12 +256,19 @@ class HomeController extends Controller
             'anggaran' => preg_replace('/\D/', '', $req->anggaran),
         ]): 0;
         // dd($req->all());
+        $req->anggaran != null ? $req->merge([
+            'anggaran' => preg_replace('/\D/', '', $req->anggaran),
+        ]): 0;
+        // dd($req->all());
         $kategori = Kategori::find($id);
+        if (!$kategori) {
+            return redirect('kategori')->with('error', 'Kategori tidak ditemukan');
         if (!$kategori) {
             return redirect('kategori')->with('error', 'Kategori tidak ditemukan');
         }
         $kategori->update($req->all());
         // $kategori->save();
+        return redirect('kategori')->with('success', 'Kategori telah diupdate');
         return redirect('kategori')->with('success', 'Kategori telah diupdate');
     }
 
@@ -192,12 +278,17 @@ class HomeController extends Controller
         $kategori->delete();
 
         $tt = Transaksi::where('kategori_id', $id)->get();
+        $tt = Transaksi::where('kategori_id', $id)->get();
 
+        if ($tt->count() > 0) {
+            $transaksi = Transaksi::where('kategori_id', $id)->first();
+            $transaksi->kategori_id = '1';
         if ($tt->count() > 0) {
             $transaksi = Transaksi::where('kategori_id', $id)->first();
             $transaksi->kategori_id = '1';
             $transaksi->save();
         }
+        return redirect('kategori')->with('success', 'Kategori telah dihapus');
         return redirect('kategori')->with('success', 'Kategori telah dihapus');
     }
 
@@ -211,8 +302,14 @@ class HomeController extends Controller
         if (!Hash::check($request->get('current-password'), Auth::user()->password)) {
             // The passwords matches
             return redirect()->back()->with('error', 'Your current password does not matches with the password you provided. Please try again.');
+        if (!Hash::check($request->get('current-password'), Auth::user()->password)) {
+            // The passwords matches
+            return redirect()->back()->with('error', 'Your current password does not matches with the password you provided. Please try again.');
         }
 
+        if (strcmp($request->get('current-password'), $request->get('new-password')) == 0) {
+            //Current password and new password are same
+            return redirect()->back()->with('error', 'New Password cannot be same as your current password. Please choose a different password.');
         if (strcmp($request->get('current-password'), $request->get('new-password')) == 0) {
             //Current password and new password are same
             return redirect()->back()->with('error', 'New Password cannot be same as your current password. Please choose a different password.');
@@ -228,21 +325,31 @@ class HomeController extends Controller
         $user->password = bcrypt($request->get('new-password'));
         $user->save();
         return redirect()->back()->with('success', 'Password telah diganti!');
+        return redirect()->back()->with('success', 'Password telah diganti!');
     }
 
     public function transaksi(Request $request)
     {
         $perPage = $request->input('per_page') ?? 25;
+        $perPage = $request->input('per_page') ?? 25;
         $transaksi = Transaksi::query();
+        if ($request->filled('jenis')) {
+            $transaksi->where('jenis', $request->jenis);
         if ($request->filled('jenis')) {
             $transaksi->where('jenis', $request->jenis);
         }
         if ($request->filled('kategori')) {
             $transaksi->where('kategori_id', $request->kategori);
+        if ($request->filled('kategori')) {
+            $transaksi->where('kategori_id', $request->kategori);
         }
         if ($request->filled('bulan')) {
             $transaksi->whereMonth('created_at', $request->bulan);
+        if ($request->filled('bulan')) {
+            $transaksi->whereMonth('created_at', $request->bulan);
         }
+        if ($request->filled('tahun')) {
+            $transaksi->whereYear('created_at', $request->tahun);
         if ($request->filled('tahun')) {
             $transaksi->whereYear('created_at', $request->tahun);
         }
@@ -263,10 +370,32 @@ class HomeController extends Controller
         }
         $transaksi = $transaksi->latest()->paginate($perPage)->withQueryString();
         $kategori = Kategori::orderBy('kategori', 'asc')->get();
+        if ($request->filled('search')) {
+
+            $search = $request->search;
+            $transaksi->where(function ($query) use ($search) {
+                $query
+                    ->where('keterangan', 'like', '%' . $search . '%')
+                    ->orWhereHas('kategori', function ($q) use ($search) {
+                        $q->where('kategori', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('siswa', function ($q) use ($search) {
+                        $q->where('nama_lengkap', 'like', '%' . $search . '%');
+                    });
+            });
+        }
+        $transaksi = $transaksi->latest()->paginate($perPage)->withQueryString();
+        $kategori = Kategori::orderBy('kategori', 'asc')->get();
         $jenis = Jenis::all();
         $kelas = Kelas::all();
         return view('app.transaksi', compact('transaksi', 'kategori', 'jenis', 'kelas'));
+        return view('app.transaksi', compact('transaksi', 'kategori', 'jenis', 'kelas'));
     }
+
+    public function testTransaksi(){
+        return 'hello';
+    }
+
 
     public function testTransaksi(){
         return 'hello';
@@ -277,6 +406,11 @@ class HomeController extends Controller
     {
         // dd($req->all());
         $req->validate([
+            'tanggal' => 'required',
+            'jenis' => 'required',
+            'kategori_id' => 'required|exists:kategori,id',
+            'nominal' => 'required',
+            'keterangan' => 'required',
             'tanggal' => 'required',
             'jenis' => 'required',
             'kategori_id' => 'required|exists:kategori,id',
@@ -320,8 +454,29 @@ class HomeController extends Controller
             }
 
             return redirect()->back()->with('success', 'Semua transaksi berhasil disimpan!');
+            if ($req->has('home') && count($req->id_siswa) > 0) {
+                $lastIndex = count($req->id_siswa) - 1;
+
+                if (isset($req->tanggal[$lastIndex]) && isset($req->id_siswa[$lastIndex])) {
+                    $date = Carbon::parse($req->tanggal[$lastIndex]);
+
+                    $idSiswaTerakhir = $req->id_siswa[$lastIndex];
+
+                    return redirect()->route('kwetansi.index', [
+                        'siswa' => $idSiswaTerakhir,
+                        'bulan' => $date->month,
+                        'tahun' => $date->year,
+                        'tanggal' => $date->day,
+                    ]);
+                }
+            }
+
+            return redirect()->back()->with('success', 'Semua transaksi berhasil disimpan!');
         } catch (\Exception $e) {
             DB::rollBack();
+            return redirect()
+                ->back()
+                ->with('error', 'Gagal menyimpan transaksi: ' . $e->getMessage());
             return redirect()
                 ->back()
                 ->with('error', 'Gagal menyimpan transaksi: ' . $e->getMessage());
@@ -338,11 +493,14 @@ class HomeController extends Controller
 
         $transaksi = Transaksi::find($id);
         if ($tanggal != null) {
+        if ($tanggal != null) {
             $transaksi->tanggal = $tanggal;
         }
         if ($jenis != null) {
+        if ($jenis != null) {
             $transaksi->jenis = $jenis;
         }
+        if ($kategori != null) {
         if ($kategori != null) {
             $transaksi->kategori_id = $kategori;
         }
@@ -350,18 +508,29 @@ class HomeController extends Controller
             $cleanedNominal = preg_replace('/[^0-9]/', '', $req->nominal);
             $transaksi->nominal = $cleanedNominal;
             // dd($transaksi->nominal);
+        if ($nominal != null) {
+            $cleanedNominal = preg_replace('/[^0-9]/', '', $req->nominal);
+            $transaksi->nominal = $cleanedNominal;
+            // dd($transaksi->nominal);
         }
+        if ($keterangan != null) {
         if ($keterangan != null) {
             $transaksi->keterangan = $keterangan;
         }
         $transaksi->save();
 
         return redirect()->back()->with('success', 'Transaksi telah diupdate!');
+        return redirect()->back()->with('success', 'Transaksi telah diupdate!');
     }
 
     public function transaksi_delete($id)
     {
         $transaksi = Transaksi::find($id);
+        if($transaksi){
+            $transaksi->delete();
+            return redirect()->back()->with('success', 'Transaksi telah dihapus!');
+        }
+        return redirect()->back()->with('error', 'Gagal untuk menghapus transaksi!');
         if($transaksi){
             $transaksi->delete();
             return redirect()->back()->with('success', 'Transaksi telah dihapus!');
@@ -378,8 +547,20 @@ class HomeController extends Controller
                 $transaksi = Transaksi::whereDate('tanggal', '>=', $_GET['dari'])->whereDate('tanggal', '<=', $_GET['sampai'])->get();
             } else {
                 $transaksi = Transaksi::where('kategori_id', $_GET['kategori'])->whereDate('tanggal', '>=', $_GET['dari'])->whereDate('tanggal', '<=', $_GET['sampai'])->get();
+        if (isset($_GET['kategori'])) {
+            $kategori = Kategori::orderBy('kategori', 'asc')->get();
+            $transaksi = '';
+            if ($_GET['kategori'] == '') {
+                $transaksi = Transaksi::whereDate('tanggal', '>=', $_GET['dari'])->whereDate('tanggal', '<=', $_GET['sampai'])->get();
+            } else {
+                $transaksi = Transaksi::where('kategori_id', $_GET['kategori'])->whereDate('tanggal', '>=', $_GET['dari'])->whereDate('tanggal', '<=', $_GET['sampai'])->get();
             }
             // $transaksi = Transaksi::orderBy('id','desc')->get();
+            return view('app.laporan', ['transaksi' => $transaksi, 'kategori' => $kategori, 'jenis' => Jenis::get()]);
+        } else {
+            $kategori = Kategori::orderBy('kategori', 'asc')->get();
+            $jenis = Jenis::get();
+            return view('app.laporan', ['transaksi' => [], 'kategori' => $kategori, 'jenis' => $jenis]);
             return view('app.laporan', ['transaksi' => $transaksi, 'kategori' => $kategori, 'jenis' => Jenis::get()]);
         } else {
             $kategori = Kategori::orderBy('kategori', 'asc')->get();
@@ -396,12 +577,24 @@ class HomeController extends Controller
                 $transaksi = Transaksi::whereDate('tanggal', '>=', $_GET['dari'])->whereDate('tanggal', '<=', $_GET['sampai'])->get();
             } else {
                 $transaksi = Transaksi::where('kategori_id', $_GET['kategori'])->whereDate('tanggal', '>=', $_GET['dari'])->whereDate('tanggal', '<=', $_GET['sampai'])->get();
+        if (isset($_GET['kategori'])) {
+            $kategori = Kategori::orderBy('kategori', 'asc')->get();
+            if ($_GET['kategori'] == '') {
+                $transaksi = Transaksi::whereDate('tanggal', '>=', $_GET['dari'])->whereDate('tanggal', '<=', $_GET['sampai'])->get();
+            } else {
+                $transaksi = Transaksi::where('kategori_id', $_GET['kategori'])->whereDate('tanggal', '>=', $_GET['dari'])->whereDate('tanggal', '<=', $_GET['sampai'])->get();
             }
             // $transaksi = Transaksi::orderBy('id','desc')->get();
+            return view('app.laporan_print', ['transaksi' => $transaksi, 'kategori' => $kategori, 'jenis' => Jenis::all()]);
             return view('app.laporan_print', ['transaksi' => $transaksi, 'kategori' => $kategori, 'jenis' => Jenis::all()]);
         }
     }
 
+    public function laporan_excel(Request $request)
+    {
+
+        return Excel::download(new LaporanExport($request), 'Laporan.xlsx');
+    }
     public function laporan_excel(Request $request)
     {
 
@@ -416,7 +609,14 @@ class HomeController extends Controller
                 $transaksi = Transaksi::whereDate('tanggal', '>=', $_GET['dari'])->whereDate('tanggal', '<=', $_GET['sampai'])->get();
             } else {
                 $transaksi = Transaksi::where('kategori_id', $_GET['kategori'])->whereDate('tanggal', '>=', $_GET['dari'])->whereDate('tanggal', '<=', $_GET['sampai'])->get();
+        if (isset($_GET['kategori'])) {
+            $kategori = Kategori::orderBy('kategori', 'asc')->get();
+            if ($_GET['kategori'] == '') {
+                $transaksi = Transaksi::whereDate('tanggal', '>=', $_GET['dari'])->whereDate('tanggal', '<=', $_GET['sampai'])->get();
+            } else {
+                $transaksi = Transaksi::where('kategori_id', $_GET['kategori'])->whereDate('tanggal', '>=', $_GET['dari'])->whereDate('tanggal', '<=', $_GET['sampai'])->get();
             }
+            $pdf = PDF::loadView('app.laporan_pdf', ['transaksi' => $transaksi, 'kategori' => $kategori, 'jenis' => Jenis::all()]);
             $pdf = PDF::loadView('app.laporan_pdf', ['transaksi' => $transaksi, 'kategori' => $kategori, 'jenis' => Jenis::all()]);
             return $pdf->download('Laporan Keuangan.pdf');
         }
@@ -425,6 +625,7 @@ class HomeController extends Controller
     public function user()
     {
         $user = User::all();
+        return view('app.user', ['user' => $user]);
         return view('app.user', ['user' => $user]);
     }
 
@@ -442,17 +643,30 @@ class HomeController extends Controller
             'level' => 'required',
             'foto' => 'image|mimes:jpeg,png,jpg|max:2048',
             'signature' => 'image|mimes:jpeg,png,jpg|max:2048',
+            'signature' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         // menyimpan data file yang diupload ke variabel $file
         $file = $request->file('foto');
         $signature = $request->file('signature');
+        $signature = $request->file('signature');
 
         // cek jika gambar kosong
         if ($file != '') {
             $nama_file = time() . '_' . $file->getClientOriginalName();
+        if ($file != '') {
+            $nama_file = time() . '_' . $file->getClientOriginalName();
 
             $tujuan_upload = 'gambar/user';
+            $file->move($tujuan_upload, $nama_file);
+        } else {
+            $nama_file = '';
+        }
+
+        if ($signature != '') {
+            $signaturePath = $signature->store('signatures','public');
+        } else {
+            $signaturePath = '';
             $file->move($tujuan_upload, $nama_file);
         } else {
             $nama_file = '';
@@ -472,8 +686,11 @@ class HomeController extends Controller
             'level' => $request->level,
             'foto' => $nama_file,
             'signature' => $signaturePath,
+            'foto' => $nama_file,
+            'signature' => $signaturePath,
         ]);
 
+        return redirect(route('user'))->with('success', 'User telah disimpan');
         return redirect(route('user'))->with('success', 'User telah disimpan');
     }
 
@@ -486,10 +703,12 @@ class HomeController extends Controller
     public function user_update($id, Request $req)
     {
         $this->validate($req, [
+        $this->validate($req, [
             'nama' => 'required',
             'email' => 'required|email',
             'level' => 'required',
             'foto' => 'image|mimes:jpeg,png,jpg|max:2048',
+            'signature' => 'image|mimes:jpeg,png,jpg|max:2048',
             'signature' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
@@ -502,25 +721,36 @@ class HomeController extends Controller
         $user->name = $name;
         $user->email = $email;
         if ($password != '') {
+        if ($password != '') {
             $user->password = bcrypt($password);
         }
 
         // menyimpan data file yang diupload ke variabel $file
         $file = $req->file('foto');
         $signature = $req->file('signature');
+        $signature = $req->file('signature');
         // cek jika gambar tidak kosong
         if ($file != '') {
+        if ($file != '') {
             // menambahkan waktu sebagai pembuat unik nnama file gambar
+            $nama_file = time() . '_' . $file->getClientOriginalName();
             $nama_file = time() . '_' . $file->getClientOriginalName();
 
             // isi dengan nama folder tempat kemana file diupload
             $tujuan_upload = 'gambar/user';
             $file->move($tujuan_upload, $nama_file);
+            $file->move($tujuan_upload, $nama_file);
 
             // hapus file gambar lama
             FacadesFile::delete('gambar/user/' . $user->foto);
+            FacadesFile::delete('gambar/user/' . $user->foto);
 
             $user->foto = $nama_file;
+        }
+        if ($signature != '') {
+            FacadesFile::delete('storage/'.$user->signature);
+            $user->signature = $signature->store('signatures','public');
+            // dd($user->signature);
         }
         if ($signature != '') {
             FacadesFile::delete('storage/'.$user->signature);
@@ -531,6 +761,7 @@ class HomeController extends Controller
         $user->save();
 
         return redirect(route('user'))->with('success', 'User telah diupdate!');
+        return redirect(route('user'))->with('success', 'User telah diupdate!');
     }
 
     public function user_delete($id)
@@ -538,8 +769,10 @@ class HomeController extends Controller
         $user = User::find($id);
         // hapus file gambar lama
         File::delete('gambar/user/' . $user->foto);
+        File::delete('gambar/user/' . $user->foto);
         $user->delete();
 
+        return redirect(route('user'))->with('success', 'User telah dihapus!');
         return redirect(route('user'))->with('success', 'User telah dihapus!');
     }
 
@@ -549,8 +782,14 @@ class HomeController extends Controller
             $data = $siswa->where('id_kelas', 'LIKE', $request->kelas)->get();
             if (!$data) {
                 return json_encode('Tidak ada siswa');
+        if ($request->filled('kelas')) {
+            $data = $siswa->where('id_kelas', 'LIKE', $request->kelas)->get();
+            if (!$data) {
+                return json_encode('Tidak ada siswa');
             }
             return json_encode($data);
+        } else {
+            return json_encode('Pilih kelas');
         } else {
             return json_encode('Pilih kelas');
         }
@@ -561,6 +800,8 @@ class HomeController extends Controller
         return json_encode($data);
     }
 
+    public function dataCategotyMonth(Request $request)
+    {
     public function dataCategotyMonth(Request $request)
     {
         $jenis = Jenis::get();
@@ -582,19 +823,29 @@ class HomeController extends Controller
         $validate = Validator::make($request->all(), ['tipe' => 'exists:jenis,id']);
         if ($validate->fails()) {
             return response()->json(['message' => 'Tipe tidak ada'], 422);
+        $totalRevenue = [];
+        $dataPengeluaran = [];
+        $validate = Validator::make($request->all(), ['tipe' => 'exists:jenis,id']);
+        if ($validate->fails()) {
+            return response()->json(['message' => 'Tipe tidak ada'], 422);
         }
 
         $bln = date('m');
         if (isset($request->tipe)) {
             foreach ($kategori as $k) {
+        if (isset($request->tipe)) {
+            foreach ($kategori as $k) {
                 $id_kategori = $k->id;
+                if ($k->id_tipe == $request->tipe) {
                 if ($k->id_tipe == $request->tipe) {
                     $pemasukan_perkategori = DB::table('transaksi')->select(DB::raw('SUM(nominal) as total'))->where('jenis', $pemasukan)->where('kategori_id', $id_kategori)->whereMonth('tanggal', $bln)->first();
                     $total = $pemasukan_perkategori->total;
 
                     if ($pemasukan_perkategori->total == '') {
                         array_push($totalRevenue, ['kategori' => $k->kategori, 'total' => 0]);
+                        array_push($totalRevenue, ['kategori' => $k->kategori, 'total' => 0]);
                     } else {
+                        array_push($totalRevenue, ['kategori' => $k->kategori, 'total' => $total]);
                         array_push($totalRevenue, ['kategori' => $k->kategori, 'total' => $total]);
                     }
 
@@ -602,11 +853,16 @@ class HomeController extends Controller
                     $totalPengeluaran = $pengeluaran_perkategori->total;
                     if ($pengeluaran_perkategori->total == '') {
                         array_push($dataPengeluaran, ['kategori' => $k->kategori, 'total' => 0]);
+                        array_push($dataPengeluaran, ['kategori' => $k->kategori, 'total' => 0]);
                     } else {
+                        array_push($dataPengeluaran, ['kategori' => $k->kategori, 'total' => $totalPengeluaran]);
                         array_push($dataPengeluaran, ['kategori' => $k->kategori, 'total' => $totalPengeluaran]);
                     }
                 }
             }
+        } else {
+            foreach ($kategori as $k) {
+                $id_kategori = $k->id;
         } else {
             foreach ($kategori as $k) {
                 $id_kategori = $k->id;
@@ -615,8 +871,10 @@ class HomeController extends Controller
 
                 if ($pemasukan_perkategori->total == null) {
                     array_push($totalRevenue, ['kategori' => $k->kategori, 'total' => 0]);
+                    array_push($totalRevenue, ['kategori' => $k->kategori, 'total' => 0]);
                     // array_push($totalRevenue, ["kategori"=> $k->kategori,"total"=>'0,']);
                 } else {
+                    array_push($totalRevenue, ['kategori' => $k->kategori, 'total' => $total]);
                     array_push($totalRevenue, ['kategori' => $k->kategori, 'total' => $total]);
                 }
 
@@ -624,12 +882,16 @@ class HomeController extends Controller
                 $totalPengeluaran = $pengeluaran_perkategori->total;
                 if ($pengeluaran_perkategori->total == '') {
                     array_push($dataPengeluaran, ['kategori' => $k->kategori, 'total' => 0]);
+                    array_push($dataPengeluaran, ['kategori' => $k->kategori, 'total' => 0]);
                     // array_push($dataPengeluaran,["kategori"=>$k->kategori,"total"=>'0,']);
                 } else {
+                    array_push($dataPengeluaran, ['kategori' => $k->kategori, 'total' => $totalPengeluaran]);
                     array_push($dataPengeluaran, ['kategori' => $k->kategori, 'total' => $totalPengeluaran]);
                 }
             }
         }
+        // dd($totals);f
+        return response()->json(['pemasukan' => $totalRevenue, 'pengeluaran' => $dataPengeluaran], 200);
         // dd($totals);f
         return response()->json(['pemasukan' => $totalRevenue, 'pengeluaran' => $dataPengeluaran], 200);
     }
@@ -639,7 +901,11 @@ class HomeController extends Controller
         try {
             Excel::import(new SiswaImport(), $request->file('import_siswa'));
             return redirect()->route('siswa.index')->with('success', 'Berhasil menambahkan data siswa dari file');
+            Excel::import(new SiswaImport(), $request->file('import_siswa'));
+            return redirect()->route('siswa.index')->with('success', 'Berhasil menambahkan data siswa dari file');
         } catch (\Throwable $th) {
+            return redirect()->route('siswa.index')->with('error', $th->getMessage());
+            // return redirect()->route('siswa.index')->with('error', 'Gagal menambahkan data siswa dari file');
             return redirect()->route('siswa.index')->with('error', $th->getMessage());
             // return redirect()->route('siswa.index')->with('error', 'Gagal menambahkan data siswa dari file');
         }
