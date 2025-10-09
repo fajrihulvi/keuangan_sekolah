@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Administrator - {{ config('app.name', 'Laravel') }}</title>
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('gambar/sistem/pavicon.png')}}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('gambar/sistem/logo1.png')}}">
     <link href="{{ asset('asset_admin/plugins/pg-calendar/css/pignose.calendar.min.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('asset_admin/plugins/chartist/css/chartist.min.css') }}">
     <link rel="stylesheet" href="{{ asset('asset_admin/plugins/chartist-plugin-tooltips/css/chartist-plugin-tooltip.css') }}">
@@ -17,6 +17,8 @@
     <link rel="stylesheet" href="{{ asset('asset_admin/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css') }}">
     <link rel="stylesheet" href="{{ asset('asset_admin/bower_components/bootstrap-daterangepicker/daterangepicker.css') }}">
     <link rel="stylesheet" href="{{ asset('asset_admin/plugins/select2/css/select2.min.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css">
+
     @yield('css')
 </head>
 <body>
@@ -140,16 +142,37 @@
                         <li><a href="{{ route('kategori') }}">Kategori</a></li>
                         <li><a href="{{ route('kelas.index') }}">Kelas</a></li>
                         <li><a href="{{ route('jenis.index') }}">Jenis</a></li>
+                        <li><a href="{{ route('pegawai.index') }}">Pegawai</a></li>
+                        <li><a href="{{ route('jabatan.index') }}">Jabatan</a></li>
+                        <li><a href="{{ route('kafalah.index') }}">Kafalah</a></li>
+                        <li><a href="{{ route('potongan.index') }}">Potongan</a></li>
                     </ul>
                 </li>
                 @endif
+                <li>
+                    <a href="{{ route('kirim-pesan') }}" aria-expanded="false">
+                        <i class="icon-paper-plane menu-icon mr-3"></i><span class="nav-text">Kirim Pesan</span>
+                    </a>
+                </li>
+                <li class="mega-menu mega-menu-sm">
+                    <a class="has-arrow" href="javascript:void()" aria-expanded="false">
+                        <i class="icon-wallet menu-icon mr-3"></i><span class="nav-text">Laporan Keuangan</span>
+                    </a>
+                    <ul aria-expanded="false">
+                        <li><a href="{{ route('transaksi') }}">Transaksi Siswa</a></li>
+                        <li><a href="{{ route('gaji.index') }}">Gaji Pegawai</a></li>
+                        <li><a href="{{ route('laporan') }}">Laporan Keuangan</a></li>
+                        <li><a href="{{ route('laporan-kelas.index') }}">Laporan per Kelas</a></li>
+                        <li><a href="{{ route('laporan-gaji') }}">Laporan Gaji</a></li>
+                    </ul>
+                </li>
                 <li class="mega-menu mega-menu-sm">
                     <a class="has-arrow" href="javascript:void()" aria-expanded="false">
                         <i class="icon-notebook menu-icon mr-3"></i><span class="nav-text">Dokumen Keuangan</span>
                     </a>
                     <ul aria-expanded="false">
-                        <li><a href="{{ route('laporan') }}">Laporan</a></li>
-                        <li><a href="{{ route('kwetansi.index') }}">Kwitansi</a></li>
+                        <li><a href="{{ route('kwetansi.index') }}">Cetak Kwitansi</a></li>
+                        <li><a href="{{ route('gaji.cetak') }}">Cetak Slip Gaji</a></li>
                     </ul>
                 </li>
                 {{-- <li>
@@ -158,11 +181,12 @@
                     </a>
                 </li> --}}
 
-                <li>
+                {{-- <li>
                     <a href="{{ route('transaksi') }}" aria-expanded="false">
                         <i class="icon-menu menu-icon mr-3"></i><span class="nav-text">Data Transaksi</span>
                     </a>
-                </li>
+                </li> --}}
+
 
 
                 @if(Auth::user()->level == "admin")
@@ -179,10 +203,11 @@
 
                 <li class="mega-menu mega-menu-sm">
                     <a class="has-arrow" href="javascript:void()" aria-expanded="false">
-                        <i class="icon-user menu-icon mr-3"></i><span class="nav-text">Siswa</span>
+                        <i class="icon-people menu-icon mr-3"></i><span class="nav-text">Siswa</span>
                     </a>
                     <ul aria-expanded="false">
                         <li><a href="{{ route('siswa.index') }}">Data Siswa</a></li>
+                        <li><a href="{{ route('kenaikan.index') }}">Kenaikan Kelas</a></li>
                         <li><a href="{{ route('siswa.create') }}">Tambah Siswa Baru</a></li>
                     </ul>
                 </li>
@@ -247,6 +272,14 @@
 @if(session('success'))
 <script>
     toastr.success('{{session('success')}}');
+</script>
+@elseif (session('error'))
+<script>
+    toastr.error('{{session('error')}}');
+</script>
+@elseif ($errors->any())
+<script>
+    toastr.error('{!! implode('<br>', $errors->all()) !!}');
 </script>
 @endif
 

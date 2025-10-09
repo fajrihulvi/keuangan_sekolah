@@ -19,7 +19,7 @@ class SiswaController extends Controller
 
     public function index()
     {
-        $data = Siswa::all();
+        $data = Siswa::with('kelas')->select(['id','nama_lengkap','nisn','id_kelas','nama_orangtua','alamat','keterangan'])->get();
         return view('app.siswa.index',compact('data'));
     }
 

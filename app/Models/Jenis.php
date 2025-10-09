@@ -24,6 +24,6 @@ class Jenis extends Model
 
     public function transaksi()
     {
-        return $this->hasMany(Transaksi::class,"id");
+        return $this->hasMany(Transaksi::class,"jenis");
     }
 }

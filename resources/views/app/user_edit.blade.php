@@ -68,7 +68,7 @@
                     <option <?php if(old("level", $user->level) == "admin"){echo "selected='selected'";} ?> value="admin">Admin</option>
                     <option <?php if(old("level", $user->level) == "bendahara"){echo "selected='selected'";} ?> value="bendahara">Bendahara</option>
                   </select>
-                  
+
                   @error('level')
                   <span class="invalid-feedback" role="alert">
                     <strong>{{ $message }}</strong>
@@ -106,7 +106,22 @@
                 </div>
               </div>
 
-              
+              <div class="form-group">
+                <div class="form-group has-feedback">
+                  <label class="text-dark">Gambar Tanda Tangan</label>
+                  <br>
+                  <input id="signature" type="file" placeholder="signature" class="@error('signature') is-invalid @enderror" name="signature" value="{{ old('signature') }}" autocomplete="off">
+                  <br>
+                  <small class="text-muted"><i>Boleh dikosongkan</i></small>
+                  @error('signature')
+                  <span class="invalid-feedback" role="alert">
+                    <strong>{{ $message }}</strong>
+                  </span>
+                  @enderror
+                </div>
+              </div>
+
+
               <div class="form-group">
                 <button type="submit" class="btn btn-primary">Simpan</button>
               </div>

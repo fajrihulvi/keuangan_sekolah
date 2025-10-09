@@ -1,5 +1,4 @@
 <?php
-
 $pemasukan = null;
 $pengeluaran = null;
 $bantuan = null;
@@ -12,10 +11,50 @@ foreach ($jenis as $item) {
         $bantuan = $item->id;
     }
 }
+
+$groupTransaksi = $transaksi->groupBy('jenis.id')->sort();
 ?>
 
 
 @extends('app.master')
+
+@section('css')
+    <style>
+        .transaksi-wrapper {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-column-gap: 16px;
+        }
+
+        .transaksi-btn {
+            display: grid;
+            justify-content: end;
+        }
+
+        .card {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .bg-primary {
+            background: linear-gradient(45deg, #4099ff, #73b4ff);
+        }
+
+        .bg-danger {
+            background: linear-gradient(45deg, #FF5370, #ff869a);
+        }
+
+        .bg-info {
+            background: linear-gradient(45deg, #2ed8b6, #59e0c5);
+        }
+    </style>
+@endsection
 
 @section('konten')
     <div class="content-body">
@@ -26,6 +65,12 @@ foreach ($jenis as $item) {
                 <div class="col-lg-4 col-sm-12">
                 </div>
                 <div class="col-lg-4 col-sm-12">
+                    {{-- <a href="{{ route('dahboard-export') }}" class="btn btn-success ml-2 float-right">
+                        EXPORT DASHBOARD
+                    </a> --}}
+                    <button type="button" class="btn btn-success ml-2 float-right" data-toggle="modal" data-target="#dashboardModal">
+                        EXPORT DASHBOARD
+                    </button>
                     <button type="button" class="btn btn-primary float-right" data-toggle="modal" data-target="#exampleModal">
                         <i class="fa fa-plus"></i> &nbsp TAMBAH TRANSAKSI
                     </button>
@@ -259,7 +304,7 @@ foreach ($jenis as $item) {
                     </div>
                 </div>
                 <div class="col-lg-4 col-sm-12">
-                    <div class="card gradient-10">
+                    <div class="card gradient-1">
                         <div class="card-body">
                             <h3 class="card-title text-white">Bantuan Bulan Ini</h3>
                             <div class="d-inline-block">
@@ -357,10 +402,23 @@ foreach ($jenis as $item) {
       ?>
             </div>
             <div class="row">
+                <div class="col-12">
+                    <h2 class="mb-3">Saldo per Kategori</h2>
+                    <div class="row" id="category-balance-container">
+                        </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <h2 class="col mb-3 font-weight-bold">KEUANGAN</h2>
+            </div>
+            <div id="transaction-container">
+            </div>
+            <div class="row">
                 <!-- Tambah Transaksi -->
                 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
                     aria-labelledby="exampleModalLabel" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
+                    <div class="modal-dialog modal-lg" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="exampleModalLabel">Tambah Transaksi</h5>
@@ -372,67 +430,72 @@ foreach ($jenis as $item) {
                             <div class="modal-body">
                                 <form action="{{ route('transaksi.aksi') }}" method="post">
                                     @csrf
-
+                                    <input type="hidden" name="home" value="1">
                                     <div id="transaksi-container">
                                         <div class="transaksi-item">
-                                            <div class="form-group">
-                                                <label>Tanggal</label>
-                                                <input type="text" class="form-control datepicker2"
-                                                    required="required" name="tanggal[]" autocomplete="off"
-                                                    placeholder="Masukkan tanggal ..">
+                                            <div class="transaksi-wrapper">
+                                                <div class="form-group">
+                                                    <label>Tanggal</label>
+                                                    <input type="text" class="form-control datepicker2"
+                                                        required="required" name="tanggal[]" autocomplete="off"
+                                                        placeholder="Masukkan tanggal ..">
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label>Jenis</label>
+                                                    <select class="form-control jenis" required="required"
+                                                        name="jenis[]">
+                                                        <option value="">--- Pilih Jenis ---</option>
+                                                        @foreach ($jenis as $item)
+                                                            <option value="{{ $item->id }}">{{ $item->tipe }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label>Kategori</label>
+                                                    <select class="form-control js-example-basic-single kategori"
+                                                        required="required" name="kategori_id[]"
+                                                        data-placeholder="--- Pilih Kategori ---">
+                                                        <option></option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="form-group wrapper-kelas" id="kelas">
+                                                    <label>Kelas</label>
+                                                    <select class="form-control js-example-basic-single kelas"
+                                                        name="kelas[]" data-placeholder="--- Pilih Kelas ---">
+                                                        <option value=""></option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="form-group wrapper-siswa" id="siswa">
+                                                    <label>Siswa</label>
+                                                    <select class="form-control js-example-basic-single siswa"
+                                                        name="id_siswa[]" data-placeholder="--- Pilih Siswa ---">
+                                                        <option value=""></option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label>Nominal</label>
+                                                    <input type="text" class="form-control nominal"
+                                                        required="required" name="nominal[]" autocomplete="off"
+                                                        placeholder="Masukkan nominal ..">
+                                                    <small class="desc-anggaran font-italic"></small>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label>Keterangan</label>
+                                                    <textarea class="form-control" name="keterangan[]" required placeholder="Masukkan keterangan .."></textarea>
+                                                </div>
                                             </div>
-
-                                            <div class="form-group">
-                                                <label>Jenis</label>
-                                                <select class="form-control jenis" required="required" name="jenis[]">
-                                                    <option value="">--- Pilih Jenis ---</option>
-                                                    @foreach ($jenis as $item)
-                                                        <option value="{{ $item->id }}">{{ $item->tipe }}</option>
-                                                    @endforeach
-                                                </select>
+                                            <div class="transaksi-btn">
+                                                <button type="button" class="btn btn-danger remove-input">
+                                                    <i class="fa fa-trash"></i> Hapus
+                                                </button>
                                             </div>
-
-                                            <div class="form-group">
-                                                <label>Kategori</label>
-                                                <select class="form-control js-example-basic-single kategori"
-                                                    required="required" name="kategori_id[]"
-                                                    data-placeholder="--- Pilih Kategori ---">
-                                                    <option></option>
-                                                </select>
-                                            </div>
-
-                                            <div class="form-group wrapper-kelas" id="kelas">
-                                                <label>Kelas</label>
-                                                <select class="form-control js-example-basic-single kelas" name="kelas[]"
-                                                    data-placeholder="--- Pilih Kelas ---">
-                                                    <option value=""></option>
-                                                </select>
-                                            </div>
-
-                                            <div class="form-group wrapper-siswa" id="siswa">
-                                                <label>Siswa</label>
-                                                <select class="form-control js-example-basic-single siswa"
-                                                    name="id_siswa[]" data-placeholder="--- Pilih Siswa ---">
-                                                    <option value=""></option>
-                                                </select>
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label>Nominal</label>
-                                                <input type="text" class="form-control nominal" required="required"
-                                                    name="nominal[]" autocomplete="off"
-                                                    placeholder="Masukkan nominal ..">
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label>Keterangan</label>
-                                                <textarea class="form-control" name="keterangan[]" required placeholder="Masukkan keterangan .."></textarea>
-                                            </div>
-
-                                            <button type="button" class="btn btn-danger remove-input">
-                                                <i class="fa fa-trash"></i> Hapus
-                                            </button>
-
                                             <hr>
                                         </div>
                                     </div>
@@ -446,6 +509,75 @@ foreach ($jenis as $item) {
                                     </button>
                                 </form>
                             </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="dashboardModal" tabindex="-1" role="dialog"
+                    aria-labelledby="dashboardModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-md" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="dashboardModalLabel">Export Data Pemasukan dan Pengeluaran</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+
+                            <form action="{{ route('dahboard-export') }}" method="GET">
+                            <div class="modal-body">
+
+                                <div class="form-group w-100">
+                                    <label>Bulan</label>
+                                    <select class="form-control js-example-basic-single" required name="bulan">
+                                        <option value="" selected disabled>--- Pilih Bulan ---</option>
+                                        @php
+                                            $currentMonth = date('n');
+                                            $months = [
+                                                1 => __('Januari'),
+                                                2 => __('Februari'),
+                                                3 => __('Maret'),
+                                                4 => __('April'),
+                                                5 => __('Mei'),
+                                                6 => __('Juni'),
+                                                7 => __('Juli'),
+                                                8 => __('Agustus'),
+                                                9 => __('September'),
+                                                10 => __('Oktober'),
+                                                11 => __('November'),
+                                                12 => __('Desember')
+                                            ];
+                                        @endphp
+
+                                        @foreach($months as $num => $name)
+                                            <option value="{{ $num }}">
+                                                {{ $name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="form-group w-100">
+                                    <label>Tahun</label>
+                                    <select class="form-control js-example-basic-single" required="required" name="tahun">
+                                        <option value="">--- Pilih Tahun ---</option>
+                                        @foreach(range(date('Y') - 5, date('Y') + 5) as $year)
+                                            <option value="{{ $year }}">{{ $year }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger" data-dismiss="modal" aria-label="Close">
+                                    Cancel
+                                </button>
+
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fa fa-paper-plane"></i> Export
+                                </button>
+                            </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -856,7 +988,6 @@ foreach ($jenis as $item) {
             $(document).on("change", ".jenis", function() {
                 let parent = $(this).closest(".transaksi-item");
                 let jenisVal = $(this).val();
-                console.debug(parent)
                 parent.find(".wrapper-kelas, .wrapper-siswa").hide();
                 parent.find(".kategori").val("").change();
                 parent.find(".kelas").empty().append(new Option('--- Pilih Kelas ---'));
@@ -873,7 +1004,6 @@ foreach ($jenis as $item) {
 
             $(document).on("change", ".kategori", function() {
                 let parent = $(this).closest(".transaksi-item");
-                console.log(parent);
                 let kategoriVal = $(this).val();
 
                 parent.find(".wrapper-kelas, .wrapper-siswa").hide();
@@ -895,7 +1025,23 @@ foreach ($jenis as $item) {
                             });
                         }
                     });
+                    $.ajax({
+                        url: "{{ route('kategori-anggaran') }}?id=" + kategoriVal,
+                        type: "GET",
+                        dataTyp: "json",
+                        success: data => {
+                            let bilangan = data.anggaran.toString();
+                            let split = bilangan.split(',');
+                            let sisa = split[0].length % 3;
+                            let rupiah = split[0].substr(0, sisa);
+                            let ribuan = split[0].substr(sisa).match(/\d{1,3}/gi);
+                            if (ribuan) rupiah += (sisa ? '.' : '') + ribuan.join('.');
+                            $(".desc-anggaran").text("Maksimal nominal: Rp" + (split[1] !==
+                                undefined ? rupiah + ',' + split[1] : rupiah));
+                        }
+                    })
                 }
+                $('.desc-anggaran').text('');
             });
 
             $(document).on("change", ".kelas", function() {
@@ -1008,7 +1154,7 @@ foreach ($jenis as $item) {
             // });
             $(document).on("change", ".datepicker2", function() {
                 let parent = $(this).closest(".transaksi-item");
-                console.info(parent);
+
                 parent.find(".js-example-basic-single").each(function() {
                     let $select = $(this);
                     let select2Instance = $select.data('select2');
@@ -1025,6 +1171,181 @@ foreach ($jenis as $item) {
                     }
                 });
             });
+
+            const transactions = @json($transaksi);
+
+            const TIPE = {
+                PEMASUKAN: {{ $pemasukan ?? 1 }},
+                PENGELUARAN: {{ $pengeluaran ?? 2 }},
+                BANTUAN: {{ $bantuan ?? 3 }}
+            };
+
+            // console.log(TIPE);
+            console.log(transactions);
+
+            // Group transactions by category
+            const grouped = {};
+            transactions.forEach(transaction => {
+                if (!grouped[transaction.kategori]) {
+                    grouped[transaction.kategori] = [];
+                }
+                grouped[transaction.kategori].push(transaction);
+            });
+
+            const pairedCategories = {};
+            const singleCategories = {
+                pemasukan: [],
+                pengeluaran: [],
+                bantuan: []
+            };
+
+            Object.keys(grouped).forEach(category => {
+                const items = grouped[category];
+                const hasIncome = items.some(item => item.id_tipe === TIPE.PEMASUKAN || item
+                    .id_tipe === TIPE.BANTUAN);
+                const hasExpense = items.some(item => item.id_tipe === TIPE.PENGELUARAN);
+
+                if (hasIncome && hasExpense) {
+                    pairedCategories[category] = items;
+                } else {
+                    items.forEach(item => {
+                        if (item.id_tipe === TIPE.PEMASUKAN) {
+                            singleCategories.pemasukan.push(item);
+                        } else if (item.id_tipe === TIPE.BANTUAN) {
+                            singleCategories.bantuan.push(item);
+                        } else {
+                            singleCategories.pengeluaran.push(item);
+                        }
+                    });
+                }
+            });
+
+            // Render the data
+            renderTransactions(pairedCategories, singleCategories);
+
+            function renderTransactions(paired, single) {
+                const $container = $('#transaction-container');
+                $container.empty();
+
+                if (Object.keys(paired).length > 0) {
+                    // $container.append(`
+                    //     <div class="row">
+                    //         <div class="col-12">
+                    //             <h3 class="mb-4">Kategori Ganda</h3>
+                    //         </div>
+                    //     </div>
+                    // `);
+
+                    Object.keys(paired).forEach(category => {
+                        const items = paired[category];
+                        const incomeItems = items.filter(item =>
+                            item.id_tipe === TIPE.PEMASUKAN || item.id_tipe === TIPE.BANTUAN
+                        );
+                        const expenseItems = items.filter(item =>
+                            item.id_tipe === TIPE.PENGELUARAN);
+
+                        const categoryHtml = `
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            ${renderItems(incomeItems, 'Pemasukan', 'gradient-4')}
+                                        </div>
+                                        <div class="col-md-6">
+                                            ${renderItems(expenseItems, 'Pengeluaran', 'gradient-2')}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        $container.append(categoryHtml);
+                    });
+                }
+
+                // Render single categories
+                $container.append(`
+                    <div class="row">
+                        <div class="col-md-6">
+                            ${renderItems(single.pemasukan, 'Pemasukan', 'gradient-4')}
+                            ${renderItems(single.bantuan, 'Pemasukan', 'gradient-7')}
+                        </div>
+                        <div class="col-md-6">
+                            ${renderItems(single.pengeluaran, 'Pengeluaran', 'gradient-2')}
+                        </div>
+                    </div>
+                `);
+            }
+
+            function renderItems(items, prefix = '', bgClass = '') {
+                if (!items || items.length === 0) {
+                    return '<div class="alert alert-secondary">Tidak ada data</div>';
+                }
+
+                return items.map(item => `
+                    <div class="card ${bgClass} text-white mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">${prefix} ${item.kategori}</h5>
+                            <div class="d-inline-block">
+                                <h3 class="mb-1">
+                                    Rp${formatNumber(item.transaksi_sum_nominal || 0)},-
+                                </h3>
+                                <p class="mb-0 small">${new Date().toLocaleDateString('id-ID')}</p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            function formatNumber(num) {
+                return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            }
+
+            const categoryBalances = {};
+
+            transactions.forEach(transaction => {
+                const category = transaction.kategori;
+                const nominal = parseInt(transaction.transaksi_sum_nominal);
+
+                if (!categoryBalances[category]) {
+                    categoryBalances[category] = 0;
+                }
+
+                if (transaction.id_tipe === TIPE.PEMASUKAN || transaction.id_tipe === TIPE.BANTUAN) {
+                    categoryBalances[category] += nominal;
+                } else if (transaction.id_tipe === TIPE.PENGELUARAN) {
+                    categoryBalances[category] -= nominal;
+                }
+            });
+
+            renderCategoryBalances(categoryBalances);
+
+            function renderCategoryBalances(balances) {
+                const $balanceContainer = $('#category-balance-container');
+                $balanceContainer.empty();
+
+                if (Object.keys(balances).length === 0) {
+                    $balanceContainer.append('<div class="alert alert-info">Tidak ada data saldo per kategori.</div>');
+                    return;
+                }
+
+                Object.keys(balances).forEach(category => {
+                    const balance = balances[category];
+                    const balanceClass = balance >= 0 ? 'bg-success' : 'bg-danger';
+
+                    const categoryHtml = `
+                        <div class="col-md-4">
+                            <div class="card ${balanceClass} text-white">
+                                <div class="card-body">
+                                    <h5 class="card-title">${category}</h5>
+                                    <h3 class="mb-0">Rp${formatNumber(balance)},-</h3>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    $balanceContainer.append(categoryHtml);
+                });
+            }
+
         });
 
         window.onload = function() {

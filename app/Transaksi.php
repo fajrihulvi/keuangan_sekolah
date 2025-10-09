@@ -23,6 +23,6 @@ class Transaksi extends Model
     }
 
     public function jenis(){
-        return $this->belongsTo(Jenis::class,'jenis');
+        return $this->belongsTo(Jenis::class,'id_tipe');
     }
 }

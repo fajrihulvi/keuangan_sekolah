@@ -81,6 +81,7 @@
                                     <th class="text-center">Kelas</th>
                                     <th class="text-center">Nama Orang Tua</th>
                                     <th class="text-center">Alamat</th>
+                                    <th class="text-center">Keterangan</th>
                                     <th class="text-center" width="10%">OPSI</th>
                                 </tr>
                             </thead>
@@ -98,6 +99,7 @@
                                         <td class="text-center">{{ $row->kelas->nama_kelas }}</td>
                                         <td class="text-center">{{ $row->nama_orangtua }}</td>
                                         <td class="text-center">{{ $row->alamat }}</td>
+                                        <td class="text-center">{{ $row->keterangan ?? '-' }}</td>
                                         <td>
                                             <div class="text-center">
                                                 <a href="{{ route('siswa.edit', $row->id) }}"
